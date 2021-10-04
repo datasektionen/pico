@@ -24,7 +24,7 @@ const Shorten = () => {
                 if (err.response) {
                     const res = err.response
                     if (res.status === 401) {
-                        setError(res.data)
+                        setError("401: Unauthorized")
                     } else if (res.status === 400) {
                         if (res.data.errors) {
                             const param = err.response.data.errors[0].param
