@@ -1,0 +1,49 @@
+.Links {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.Links .search {
+    padding: 10px;
+}
+
+.Links .search input {
+    padding: 10px;
+    width: 300px;
+}
+
+.Links .table {
+    display: flex;
+    justify-content: center;
+}
+
+.Links#content {
+    padding: 10px 10px;
+}
+
+.Links table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    table-layout: fixed;
+}
+
+.Links table tr th i {
+    padding: 0 10px;
+    cursor: pointer;
+}
+
+.Links .item > td#trash {
+    text-align: center;
+}
+
+.Links i.fas.fa-trash-alt {
+    color: #000;
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+.Links i.fas.fa-trash-alt:hover {
+    opacity: 1;
+}

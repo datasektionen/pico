@@ -4,9 +4,12 @@ import cryptoRandomString from 'crypto-random-string';
 import cors from "cors";
 import configuration from "./configuration.js";
 import mongoose from "mongoose";
+import morgan from "morgan";
+import path from "path";
+const __dirname = path.resolve();
 import Item from "./models/Item.js";
 import { body } from "express-validator";
-import { adminAuth, authorizePls, validationCheck } from "./middlewares.js"
+import { authorizePls, validationCheck, silentAuthorization } from "./middlewares.js"
 
 app.use(express.json());
 app.use(cors());
@@ -23,10 +26,16 @@ app.use(cors());
     }
 })();
 
+// Log requests to console
+if (configuration.NODE_ENV === "development") {
+    app.use(morgan("dev"));
+} else if (configuration.NODE_ENV === "production") {
+    app.use(morgan("common"));
+}
+
 const generateShortString = async () => {
     let iterator = 0;
     while (true && iterator < 1000) {
-        console.log(configuration.SHORT_URL_LENGTH)
         const key = cryptoRandomString({ length: configuration.SHORT_URL_LENGTH, type: "alphanumeric" });
         if (await Item.findOne({ short: key }) == null) {
             return key;
@@ -36,12 +45,21 @@ const generateShortString = async () => {
     throw new Error("Couldn't generate a unique shortened url. Try again.")
 }
 
+// Checks if a token is valid
+// Returns user info or 400
+app.get("/api/check-token",
+    silentAuthorization,
+async (req, res) => {
+    if (!req.user) return res.sendStatus(400);
+    return res.status(200).json(req.user);
+});
+
 app.post("/api/shorten",
     // You must be logged in, but you need no pls permissions
     authorizePls,
     body("url")
     .exists().withMessage("is required")
-    .isURL().withMessage("should be a valid URL"),
+    .isURL({protocols: ["http", "https"], require_protocol: true}).withMessage("should be a valid URL and include the protocol (http:// or https://)"),
     validationCheck,
 async (req, res) => {
     
@@ -78,19 +96,42 @@ async (req, res) => {
 
 app.get("/api/all",
     authorizePls,
-    // adminAuth,
 (req, res) => {
-    Item.find({})
+    let query;
+    if (req.user.pls.includes("admin")) {
+        query = Item.find({})
+    } else {
+        query = Item.find({ user: req.user.user })
+    }
+
+    query
     .then(data => res.json(data))
-    .catch(err => res.send(err))
+    .catch(err => res.status(500).send(err))
 })
 
-app.get("/:code", async (req, res) => {
+app.get("/api/code/:code", async (req, res) => {
+    const { code } = req.params;
+    const item = await Item.findOneAndUpdate({ short: code}, {$inc: { clicks: 1 }})
+    if (!item) return res.sendStatus(404);
+    return res.status(200).json(item);
+})
+
+app.delete("/api/:code",
+    authorizePls,
+async (req, res) => {
     const { code } = req.params;
     const item = await Item.findOne({ short: code });
     if (!item) return res.sendStatus(404);
-    return res.redirect(item.url);
+    if (item.user === req.user.user || req.user.pls.includes("admin")) {
+        await Item.deleteOne({ short: code });
+        return res.sendStatus(200);
+    } else {
+        return res.sendStatus(401);
+    }
 })
+
+app.use(express.static(path.join(__dirname, "client", "build")));
+app.get("*", (req, res) => res.sendFile(path.join(__dirname, "client", "build", "index.html")));
 
 const PORT = configuration.PORT;
 app.listen(PORT, () => console.log(`Listening on port ${PORT}.`));

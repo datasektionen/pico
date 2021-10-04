@@ -11,6 +11,7 @@
     "type": "module",
     "scripts": {
         "start": "node app.js",
+        "postinstall": "cd client && npm install",
         "dev": "nodemon app.js",
         "lint": "eslint"
     },
@@ -22,7 +23,8 @@
         "express": "^4.17.1",
         "express-validator": "^6.12.2",
         "mongodb": "^4.1.2",
-        "mongoose": "^6.0.8"
+        "mongoose": "^6.0.8",
+        "morgan": "^1.10.0"
     },
     "devDependencies": {
         "eslint": "^7.32.0",

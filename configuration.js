@@ -18,6 +18,7 @@ const configuration = {
     PORT: process.env.PORT ?? 8000,
     MONGO_URL: process.env.MONGO_URL,
     SHORT_URL_LENGTH: Number(process.env.SHORT_URL_LENGTH) ?? 4,
+    NODE_ENV: process.env.NODE_ENV ?? "development",
 };
 
 export default configuration;

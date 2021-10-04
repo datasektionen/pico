@@ -8,6 +8,10 @@ const schema = new mongoose.Schema({
         default: Date.now
     },
     user: String,
+    clicks: {
+        type: Number,
+        default: 0,
+    },
 }, {
     versionKey: false
 });
