@@ -19,7 +19,6 @@ const RedirectComponent = () => {
             const short = window.location.pathname.split("/")[1]
             axios.get(`${Configuration.apiUrl}/api/code/${short}`)
                 .then(res => {
-                    console.log(res)
                     // const url = res.data.url
                     // if (!url.startsWith("https://") && !url.startsWith("http://")) {
                     //     window.location = "https://" + res.data.url
