@@ -1,6 +1,7 @@
 import express from "express";
 const app = express();
 import cryptoRandomString from 'crypto-random-string';
+import cors from "cors";
 import configuration from "./configuration.js";
 import mongoose from "mongoose";
 import Item from "./models/Item.js";
@@ -8,6 +9,7 @@ import { body } from "express-validator";
 import { adminAuth, authorizePls, validationCheck } from "./middlewares.js"
 
 app.use(express.json());
+app.use(cors());
 
 (async () => {
     try {
