@@ -33,7 +33,7 @@ export const authorizePls = async (req, res, next) => {
         
         const user = response.data;
     
-        const plsResponse = await axios.get(`${configuration.PLS_API_URL}/user/${user.user}/damm`);
+        const plsResponse = await axios.get(`${configuration.PLS_API_URL}/user/${user.user}/pico`);
         req.user = { ...user, pls: plsResponse.data };
     
         next();
@@ -74,7 +74,7 @@ export const silentAuthorization = async (req, res, next)=> {
         
         const user = response.data;
     
-        const plsResponse = await axios.get(`${configuration.PLS_API_URL}/user/${user.user}/damm`);
+        const plsResponse = await axios.get(`${configuration.PLS_API_URL}/user/${user.user}/pico`);
         req.user = { ...user, pls: plsResponse.data };
     
         next();
