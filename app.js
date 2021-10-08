@@ -6,6 +6,7 @@ import configuration from "./configuration.js";
 import mongoose from "mongoose";
 import morgan from "morgan";
 import path from "path";
+import fs from "fs";
 const __dirname = path.resolve();
 import Item from "./models/Item.js";
 import { body } from "express-validator";
@@ -54,24 +55,51 @@ async (req, res) => {
     return res.status(200).json(req.user);
 });
 
+// Read blacklist from file
+let banned = {};
+(async () => {
+    console.log("Start read")
+    const file = fs.readFileSync(path.join(__dirname, "resources", "everything.txt"))
+    const lines =  file.toString().split("\n")
+    for (const line of lines) {
+        if (line.startsWith("#")) continue;
+        banned[line] = true;
+    }
+    console.log("Read file")
+})()
+
 app.post("/api/shorten",
     // You must be logged in, but you need no pls permissions
     authorizePls,
     body("url")
     .exists().withMessage("is required")
-    .isURL({protocols: ["http", "https"], require_protocol: true}).withMessage("should be a valid URL and include the protocol (http:// or https://)"),
+    .isURL({ 
+        protocols: ["http", "https"],
+        require_protocol: true,
+    }).withMessage("should be a valid URL and include the protocol (http:// or https://)"),
     validationCheck,
 async (req, res) => {
     
     const { url } = req.body;
 
-    // Check if url is already shortened
+    // Check if url is already in database
     const exists = await Item.findOne({ url });
     if (exists) {
         return res.status(200).json(exists)
     }
 
-    // TODO: Blacklist URL:s
+    // Check blacklist
+    const host = new URL(url).host
+    if (banned[host] || banned[`www${host}`]) {
+        return res.status(400).json({
+            errors: [
+                {
+                    msg: `"${host}" is blacklisted`,
+                    param: "url"
+                }
+            ]
+        })
+    }
     
     generateShortString()
     .then(key => {
