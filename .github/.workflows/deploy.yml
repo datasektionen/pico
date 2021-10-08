@@ -1,0 +1,37 @@
+name: Lint, build, deploy
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+    - name: Git checkout
+      uses: actions/checkout@v2
+      
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install packages
+    # Postinstall in server runs install in client. Client's postinstall builds the React app
+      run: CI='' npm ci
+    - name: Lint backend
+      run: npm run lint
+    # https://github.com/marketplace/actions/dokku-deploy-action?version=v1
+    - name: Deploy on medusa
+      uses: idoberko2/dokku-deploy-github-action@v1
+      with:
+        ssh-private-key: ${{ secrets.MEDUSA_SSH_KEY }}
+        dokku-user: 'dokku'
+        remote-branch: 'master'
+        dokku-host: 'medusa.datasektionen.se'
+        app-name: 'pico'
