@@ -5,7 +5,7 @@ const schema = new mongoose.Schema({
     url: String,
     date: {
         type: mongoose.Schema.Types.Date,
-        default: Date.now
+        default: Date.now,
     },
     user: String,
     clicks: {
@@ -13,7 +13,7 @@ const schema = new mongoose.Schema({
         default: 0,
     },
 }, {
-    versionKey: false
+    versionKey: false,
 });
 
 const Item = mongoose.model("Item", schema);
