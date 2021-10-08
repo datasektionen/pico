@@ -23,7 +23,7 @@ jobs:
 
     - name: Install packages
     # Postinstall in server runs install in client. Client's postinstall builds the React app
-      run: CI='' npm ci
+      run: CI=false npm ci
     - name: Lint backend
       run: npm run lint
     # https://github.com/marketplace/actions/dokku-deploy-action?version=v1
