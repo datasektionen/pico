@@ -4,6 +4,16 @@
     flex-direction: column;
 }
 
+.Links #copy-notify {
+    position: absolute;
+    top: 50%;
+    background-color: #000;
+    color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+    user-select: none;
+}
+
 .Links .search {
     padding: 10px;
 }
@@ -38,12 +48,14 @@
     text-align: center;
 }
 
-.Links i.fas.fa-trash-alt {
+.Links .item i {
     color: #000;
     opacity: 0.5;
     cursor: pointer;
+    padding: 0 3px;
+    font-size: 16px;
 }
 
-.Links i.fas.fa-trash-alt:hover {
+.Links i:hover {
     opacity: 1;
 }
