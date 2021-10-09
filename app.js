@@ -90,7 +90,8 @@ app.post("/api/shorten",
 
         // Check blacklist
         const host = new URL(url).host;
-        if (banned[host] || banned[`www.${host}`]) {
+        console.log(banned[host] || banned[`www.${host}`] || banned[host.replace(/www[.]/, "")])
+        if (banned[host] || banned[`www.${host}`] || banned[host.replace(/www[.]/, "")]) {
             return res.status(400).json({
                 errors: [
                     {
