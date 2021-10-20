@@ -73,6 +73,8 @@ app.post("/api/shorten",
     authorizePls,
     body("url")
         .exists().withMessage("is required")
+        .trim()
+        .toLowerCase()
         .isURL({
             protocols: ["http", "https"],
             require_protocol: true,
@@ -90,7 +92,6 @@ app.post("/api/shorten",
 
         // Check blacklist
         const host = new URL(url).host;
-        console.log(banned[host] || banned[`www.${host}`] || banned[host.replace(/www[.]/, "")])
         if (banned[host] || banned[`www.${host}`] || banned[host.replace(/www[.]/, "")]) {
             return res.status(400).json({
                 errors: [
