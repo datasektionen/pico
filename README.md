@@ -9,10 +9,12 @@ När man förkortar en länk kollar systemet om länken finns i svartlistan som 
 Available [here](https://duckumentation.datasektionen.se/pico)
 
 # Pls permissions
-There is one pls permissions:
+There are two pls permissions:
 - `admin`
+- `custom-link`
 
-`admin` gives you access to manage all links, not only your own
+- `admin` gives you access to manage all links, not only your own
+- `custom-link` gives you the right to create custom links.
 
 # Dependencies (Sektionens system)
 Pico uses the following systems:

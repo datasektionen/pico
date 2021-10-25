@@ -43,6 +43,17 @@ export const authorizePls = async (req, res, next) => {
     }
 };
 
+export const desiredAuth = (req, res, next) => {
+    if (req.body.desired) {
+        if (req.user.pls.includes("custom-link") || req.user.pls.includes("admin")) {
+            return next();
+        }
+        res.sendStatus(401);
+    } else {
+        next();
+    }
+};
+
 export const adminAuth = async (req, res, next) => {
     if (req.user.pls.includes("admin")) return next();
 

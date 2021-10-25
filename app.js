@@ -10,7 +10,7 @@ import fs from "fs";
 const __dirname = path.resolve();
 import Item from "./models/Item.js";
 import { body } from "express-validator";
-import { authorizePls, validationCheck, silentAuthorization } from "./middlewares.js";
+import { authorizePls, validationCheck, silentAuthorization, desiredAuth } from "./middlewares.js";
 
 app.use(express.json());
 app.use(cors());
@@ -71,24 +71,22 @@ const banned = {};
 app.post("/api/shorten",
     // You must be logged in, but you need no pls permissions
     authorizePls,
+    desiredAuth,
     body("url")
         .exists().withMessage("is required")
         .trim()
-        .toLowerCase()
         .isURL({
             protocols: ["http", "https"],
             require_protocol: true,
         }).withMessage("should be a valid URL and include the protocol (http:// or https://)"),
+    body("desired")
+        .optional()
+        .isString().withMessage("should be a string")
+        .trim(),
     validationCheck,
     async (req, res) => {
 
-        const { url } = req.body;
-
-        // Check if url is already in database
-        const exists = await Item.findOne({ url });
-        if (exists) {
-            return res.status(200).json(exists);
-        }
+        const { url, desired } = req.body;
 
         // Check blacklist
         const host = new URL(url).host;
@@ -103,20 +101,38 @@ app.post("/api/shorten",
             });
         }
 
-        generateShortString()
-            .then(key => {
-                Item.create({
-                    short: key,
-                    url,
-                    user: req.user.user,
-                })
-                    .then(item => {
-                        res.status(201).json(item);
-                    })
-                    .catch(err => {
-                        console.log(err);
-                        res.status(500).send(err);
-                    });
+        const data = {
+            url,
+            user: req.user.user,
+        };
+
+        // If specified a desired short url
+        if (desired) {
+            data["short"] = desired;
+            const desiredExists = await Item.findOne({ short: desired });
+            if (desiredExists !== null) {
+                return res.status(400).json({
+                    errors: [
+                        {
+                            msg: `"${desired}" already exists`,
+                            param: "",
+                        },
+                    ],
+                });
+            }
+        // No desired url specified
+        } else {
+            try {
+                data["short"] = await generateShortString();
+            } catch (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            }
+        }
+
+        Item.create(data)
+            .then(item => {
+                res.status(201).json(item);
             })
             .catch(err => {
                 console.log(err);
