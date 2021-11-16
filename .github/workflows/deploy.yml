@@ -36,4 +36,4 @@ jobs:
         dokku-user: 'dokku'
         remote-branch: 'master'
         dokku-host: 'medusa.datasektionen.se'
-        app-name: 'pico'
+        app-name: 'dsekt.se'
