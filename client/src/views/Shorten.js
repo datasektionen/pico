@@ -84,7 +84,7 @@ const Shorten = () => {
                         <button onClick={submit}>Förkorta</button>
                     </form>
                     <h2>Specificera förkortad länk</h2>
-                    <p>Önska en förkortad länk, exempelvis "ior". Giltiga tecken: A-Z, a-z, 0-9</p>
+                    <p>Önska en förkortad länk, exempelvis "ior". Giltiga tecken: A-Ö, a-ö, 0-9</p>
                     <p>Används för exempelvis rekryteringsformulär för nämnder. Du måste vara funktionär för att nyttja denna funktionalitet.</p>
                     <form className="row">
                         <input
