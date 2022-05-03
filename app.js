@@ -11,6 +11,7 @@ const __dirname = path.resolve();
 import Item from "./models/Item.js";
 import { body } from "express-validator";
 import { authorizePls, validationCheck, silentAuthorization, desiredAuth } from "./middlewares.js";
+import { CronJob } from "cron";
 
 app.use(express.json());
 app.use(cors());
@@ -83,10 +84,14 @@ app.post("/api/shorten",
         .optional()
         .isString().withMessage("should be a string")
         .trim(),
+    body("expires")
+        .optional()
+        .isInt({ gt: Date.now() })
+        .withMessage(`should be an int greater than ${Date.now()} (current unix time in ms)`),
     validationCheck,
     async (req, res) => {
 
-        const { url, desired } = req.body;
+        const { url, desired, expires } = req.body;
 
         // Check blacklist
         const host = new URL(url).host;
@@ -104,6 +109,7 @@ app.post("/api/shorten",
         const data = {
             url,
             user: req.user.user,
+            expires: expires ? expires : null,
         };
 
         // If specified a desired short url
@@ -175,6 +181,27 @@ app.delete("/api/:code",
             return res.sendStatus(401);
         }
     });
+
+// Clears all links which "expired" field is less than the current time
+// Entries with "expired: null" are not removed (as expected)
+const clearExpiredLinks = async () => {
+    const ids = (await Item.where("expires").lte(Date.now()))
+        .map(x => x._id);
+
+    const result = await Promise.all(
+        ids.map(id => {
+            return Item.findByIdAndDelete(id);
+        }),
+    );
+
+    if (result.length > 0) {
+        console.log(`Removed ${result.length} expired link(s) from database.`);
+    }
+};
+
+// second (0-59), min (0-59), h (0-23), day-of-month (1-31), month (0-11), weekday (0-6)
+// This job is run once per minute
+new CronJob("0 * * * * *", clearExpiredLinks, null, true);
 
 app.use(express.static(path.join(__dirname, "client", "build")));
 app.get("*", (req, res) => res.sendFile(path.join(__dirname, "client", "build", "index.html")));

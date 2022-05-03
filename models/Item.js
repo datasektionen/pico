@@ -12,6 +12,10 @@ const schema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
+    expires: {
+        type: mongoose.Schema.Types.Date,
+        default: null,
+    },
 }, {
     versionKey: false,
 });
