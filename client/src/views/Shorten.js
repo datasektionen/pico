@@ -11,6 +11,7 @@ const Shorten = () => {
     const [result, setResult] = useState("");
     const [error, setError] = useState("");
     const [fetching, setFetching] = useState(false)
+    const [expire, setExpire] = useState(false);
 
     const reset = () => {
         setError("")
@@ -23,16 +24,20 @@ const Shorten = () => {
         setFetching(true);
         reset()
 
-        const data = hasDesired ?
-            { url: text, desired }
-            :
-            { url: text };
+        const data = {
+            url: text,
+        }
+        if (hasDesired) data["desired"] = desired;
+        // expire is set to something like 2022-05-14T16:07 from the input element
+        // convert it to unix time in ms (an integer)
+        if (expire) data["expires"] = new Date(expire).getTime();
 
         axios.post(`${Configuration.apiUrl}/api/shorten`, data, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
         .then(res => {
             setResult(res.data.short)
             setDesired("")
             setText("")
+            setExpire("")
         })
         .catch(err => {
             if (err.response) {
@@ -73,7 +78,7 @@ const Shorten = () => {
                     </div>
                     <h2>Autogenererad förkortad länk</h2>
                     <p>Slumpa en fyra karaktärer lång sträng.</p>
-                    <form className="row">
+                    <form style={{ display: "flex", flexDirection: "column" }}>
                         <input
                             type="text"
                             placeholder="Lång jävla länk"
@@ -81,12 +86,19 @@ const Shorten = () => {
                             onChange={e => setText(e.target.value)}
                             autoFocus
                         />
-                        <button onClick={submit}>Förkorta</button>
+                        <div>
+                            <label htmlFor="expire-time">Utgångsdatum</label>
+                            <input id="expire-time" type="datetime-local" value={expire} onChange={e => setExpire(e.target.value)} />
+                            <button onClick={e => { e.preventDefault(); setExpire(""); }}>Rensa utgångsdatum</button>
+                        </div>
+                        <div style={{ margin: "10px 0"}}>
+                            <button onClick={submit}>Förkorta</button>
+                        </div>
                     </form>
                     <h2>Specificera förkortad länk</h2>
                     <p>Önska en förkortad länk, exempelvis "ior". Giltiga tecken: A-Ö, a-ö, 0-9</p>
                     <p>Används för exempelvis rekryteringsformulär för nämnder. Du måste vara funktionär för att nyttja denna funktionalitet.</p>
-                    <form className="row">
+                    <form style={{ display: "flex", flexDirection: "column" }}>
                         <input
                             type="text"
                             placeholder="Lång jävla länk"
@@ -99,7 +111,14 @@ const Shorten = () => {
                             value={desired}
                             onChange={e => setDesired(e.target.value)}
                         />
-                        <button onClick={e => submit(e, true)}>Förkorta</button>
+                        <div>
+                            <label htmlFor="expire-time">Utgångsdatum</label>
+                            <input id="expire-time" type="datetime-local" value={expire} onChange={e => setExpire(e.target.value)} />
+                            <button onClick={e => { e.preventDefault(); setExpire(""); }}>Rensa utgångsdatum</button>
+                        </div>
+                        <div style={{ margin: "10px 0"}}>
+                            <button onClick={e => submit(e, true)}>Förkorta</button>
+                        </div>
                     </form>
                     {fetching &&
                         <div style={{margin: "auto", padding: "50px"}}>

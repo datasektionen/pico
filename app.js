@@ -87,7 +87,7 @@ app.post("/api/shorten",
     body("expires")
         .optional()
         .isInt({ gt: Date.now() })
-        .withMessage(`should be an int greater than ${Date.now()} (current unix time in ms)`),
+        .withMessage(`should be an int greater than current unix time in ms (${Date.now()} )`),
     validationCheck,
     async (req, res) => {
 
