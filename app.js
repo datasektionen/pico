@@ -109,7 +109,7 @@ app.post("/api/shorten",
         const data = {
             url,
             user: req.user.user,
-            expires: expires ? expires : null,
+            expires: expires ?? null,
         };
 
         // If specified a desired short url
