@@ -99,6 +99,14 @@ const Links = () => {
                                         />
                                     </th>
                                     <th>
+                                        Utgångsdatum
+                                        <i
+                                            className="fas fa-sort-down"
+                                            onClick={() => requestSort("expires")}
+                                            style={{transform: `rotate(${getAscDesc("expires") === "asc" ? "0deg" : "180deg"})`}}
+                                        />
+                                    </th>
+                                    <th>
                                         Skapare
                                         <i
                                             className="fas fa-sort-down"
@@ -126,6 +134,15 @@ const Links = () => {
                                             <Moment format="YYYY-MM-DD HH:mm:ss">
                                                 {l.date}
                                             </Moment>
+                                        </td>
+                                        <td>
+                                            {l.expires ?
+                                                <Moment format="YYYY-MM-DD HH:mm:ss">
+                                                    {l.expires}
+                                                </Moment>
+                                                :
+                                                "-"
+                                            }
                                         </td>
                                         <td>{l.user}</td>
                                         <td>{l.clicks}</td>
