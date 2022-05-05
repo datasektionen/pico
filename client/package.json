@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@mantine/core": "^4.2.2",
+    "@mantine/form": "^4.2.2",
+    "@mantine/hooks": "^4.2.2",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
@@ -10,6 +13,7 @@
     "methone": "github:datasektionen/Methone#master",
     "moment": "^2.29.1",
     "react": "^17.0.2",
+    "react-data-grid": "^7.0.0-beta.12",
     "react-dom": "^17.0.2",
     "react-moment": "^1.1.1",
     "react-router-dom": "^5.3.0",

@@ -1,23 +1,5 @@
-.center {
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-}
-
-.center .row {
-    display: flex;
-    margin: auto;
-    flex-wrap: wrap;
-}
-
-.shortened {
-    padding: 100px 0px;
-}
-
-.column {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+* {
+    transition: none;
 }
 
 input {
