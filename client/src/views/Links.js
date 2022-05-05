@@ -8,12 +8,6 @@ import { Button, Select, Tooltip, Alert } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { copyShortUrlToClipbord } from "../common/functions";
 
-const sorter = (a, b) => {
-    if (a < b) return 1;
-    else if (a < b) return -1;
-    else return 0;
-}
-
 const sortOptions = [
     { label: "Antal klick (fallande)", value: "clicks-desc" },
     { label: "Antal klick (stigande)", value: "clicks-asc" },
@@ -45,7 +39,7 @@ const Links = ({ user, userMandates, allMandates, pls }) => {
             {
                 label: "Mina länkar",
                 value: "my-links",
-                filter: (link, user, mandates) => link.user === user || mandates.includes(link.mandate),
+                filter: (link, user, mandates) => link.user === user,
             },
             {
                 label: "Med utgångsdatum",
@@ -55,7 +49,7 @@ const Links = ({ user, userMandates, allMandates, pls }) => {
             ...userMandates.map(m => ({
                 label: `Tillhör "${m.Role.title}"`,
                 value: m.Role.identifier,
-                filter: (link, user, mandates) => mandates.includes(link.mandate),
+                filter: (link, user, mandates) => mandates.includes(link.mandate) && link.mandate === m.Role.identifier,
             })),
         ]
     }, [userMandates, user])
@@ -98,7 +92,7 @@ const Links = ({ user, userMandates, allMandates, pls }) => {
     useEffect(() => {
         const filterFn = filterOptions.find(x => x.value === filterOption)?.filter ?? ((value) => true);
 
-        let sortFn = (a, b) => sorter(a.date, b.date);
+        let sortFn = (a, b) => sortOptions.find(s => s.default);
         if (sortOption === "id-aö") sortFn = (a, b) => a.short < b.short ? -1 : 1;
         else if (sortOption === "id-öa") sortFn = (a, b) => a.short < b.short ? 1 : -1;
         else if (sortOption === "created-new-old") sortFn = (a, b) => a.date < b.date ? 1 : -1;
@@ -108,9 +102,16 @@ const Links = ({ user, userMandates, allMandates, pls }) => {
         else if (sortOption === "clicks-asc") sortFn = (a, b) => a.clicks < b.clicks ? -1 : 1;
         else if (sortOption === "clicks-desc") sortFn = (a, b) => a.clicks < b.clicks ? 1 : -1;
 
+        const filterMandate = (link) => {
+            if (filterMandateOption === "") return true; // No option is set, do not filter anything
+            else if (filterMandateOption === "any-mandate") return link.mandate; // only keep links with any mandate
+            else if (filterMandateOption === "no-mandate") return !link.mandate; // only keep links with no mandate
+            else return filterMandateOption === link.mandate; // only keep links with the specific mandate
+        }
+
         const filtered = allLinks
             .filter(x => filterFn(x, user, userMandates.map(m => m.Role.identifier)))
-            .filter(x => filterMandateOption === "" ? true : (filterMandateOption === x.mandate))
+            .filter(filterMandate)
             .filter(x => filterUserOption === "" ? true : (filterUserOption === x.user))
             .filter(matchesSearch)
             .sort(sortFn)
@@ -119,6 +120,8 @@ const Links = ({ user, userMandates, allMandates, pls }) => {
     }, [sortOption, filterOption, filterMandateOption, filterUserOption, allLinks, debouncedQuery])
 
     const linksAsItems = useMemo(() => {
+        const getMandateTitle = (mandate) => allMandates.find(x => x.identifier === mandate)?.title;
+
         return links.map(l => ({
             ...l,
             url: (
@@ -127,9 +130,22 @@ const Links = ({ user, userMandates, allMandates, pls }) => {
                 </Tooltip>
             ),
             description: (
-                <Tooltip wrapLines width={300} position="right" label={l.description ?? "Ingen beskrivning"}>
-                    {l.description ?? "-"}
-                </Tooltip>
+                l.description ?
+                    <Tooltip wrapLines width={300} position="right" label={l.description}>
+                        {l.description}
+                    </Tooltip>
+                    :
+                    <Tooltip wrapLines position="right" label="Ingen beskrivning">
+                        -
+                    </Tooltip>
+            ),
+            mandate: (
+                getMandateTitle(l.mandate) ?
+                    <Tooltip wrapLines position="right" label={getMandateTitle(l.mandate)}>
+                        {getMandateTitle(l.mandate)}
+                    </Tooltip>
+                    :
+                    "-"
             ),
             date: (
                 <Tooltip label={
@@ -188,6 +204,7 @@ const Links = ({ user, userMandates, allMandates, pls }) => {
                                 onChange={(value) => setFilterOption(value)}
                                 value={filterOption}
                                 placeholder="Filtrera"
+                                autoComplete="off"
                             />
                             <Select
                                 data={sortOptions.map(f => ({ label: f.label, value: f.value }))}
@@ -195,8 +212,9 @@ const Links = ({ user, userMandates, allMandates, pls }) => {
                                 value={sortOption}
                                 placeholder="Sortera"
                                 defaultValue={sortOptions.find(x => x.default).value}
+                                autoComplete="off"
                             />
-                            {(pls.includes("admin") || pls.includes("view")) &&
+                            {pls.includes("admin") &&
                                 <>
                                     <Select
                                         placeholder="Tillhör användare"
@@ -205,14 +223,20 @@ const Links = ({ user, userMandates, allMandates, pls }) => {
                                         nothingFound="Hittade inga användare"
                                         data={allLinks.map(i => ({ value: i.user, label: i.user })).filter((v, i, self) => i === self.findIndex(t => t.value === v.value))}
                                         onChange={(value) => setFilterUserOption(value ?? "")}
+                                        autoComplete="off"
                                     />
                                     <Select
                                         placeholder="Tillhör mandat"
                                         searchable
                                         allowDeselect
                                         nothingFound="Hittade inga mandat"
-                                        data={allMandates.map(m => ({ value: m.identifier, label: m.title }))}
+                                        data={[
+                                            { label: "Något mandat", value: "any-mandate" },
+                                            { label: "Inget mandat", value: "no-mandate" },
+                                            ...allMandates.map(m => ({ value: m.identifier, label: m.title }))
+                                        ]}
                                         onChange={(value) => setFilterMandateOption(value ?? "")}
+                                        autoComplete="off"
                                     />
 
                                 </>

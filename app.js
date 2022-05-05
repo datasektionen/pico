@@ -83,10 +83,14 @@ app.post("/api/shorten",
         .optional()
         .isString().withMessage("should be a string")
         .trim(),
+    body("mandate")
+        .optional()
+        .isString().withMessage("should be a string")
+        .trim(),
     validationCheck,
     async (req, res) => {
 
-        const { url, desired } = req.body;
+        const { url, desired, mandate } = req.body;
 
         // Check blacklist
         const host = new URL(url).host;
@@ -106,6 +110,8 @@ app.post("/api/shorten",
             user: req.user.user,
         };
 
+        if (mandate) data["mandate"] = mandate;
+
         // If specified a desired short url
         if (desired) {
             data["short"] = desired;
@@ -120,7 +126,7 @@ app.post("/api/shorten",
                     ],
                 });
             }
-        // No desired url specified
+            // No desired url specified
         } else {
             try {
                 data["short"] = await generateShortString();
@@ -145,9 +151,16 @@ app.get("/api/all",
     (req, res) => {
         let query;
         if (req.user.pls.includes("admin")) {
+            // Find everything
             query = Item.find({});
         } else {
-            query = Item.find({ user: req.user.user });
+            // Find links belonging to the user or the users' mandates
+            query = Item.find({
+                $or: [
+                    { user: req.user.user },
+                    ...req.user.mandates.map(m => ({ mandate: m.identifier })),
+                ],
+            });
         }
 
         query
@@ -168,11 +181,17 @@ app.delete("/api/:code",
         const { code } = req.params;
         const item = await Item.findOne({ short: code });
         if (!item) return res.sendStatus(404);
-        if (item.user === req.user.user || req.user.pls.includes("admin")) {
+        // Creator of link, has same mandate as link, or is admin
+        const hasAccess =
+            item.user === req.user.user
+            || req.user.mandates.map(m => m.identifier).includes(item.mandate)
+            || req.user.pls.includes("admin");
+
+        if (hasAccess) {
             await Item.deleteOne({ short: code });
             return res.sendStatus(200);
         } else {
-            return res.sendStatus(401);
+            return res.sendStatus(403);
         }
     });
 

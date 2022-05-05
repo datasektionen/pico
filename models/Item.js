@@ -12,11 +12,12 @@ const schema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
+    description: String,
+    mandate: String,
 }, {
     versionKey: false,
 });
 
 const Item = mongoose.model("Item", schema);
-// await Item.createCollection();
 
 export default Item;

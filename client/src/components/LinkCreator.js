@@ -138,6 +138,8 @@ const LinkCreator = ({ title, desc, custom, userMandates }) => {
                             searchable
                             allowDeselect
                             {...form.getInputProps("mandate")}
+                            disabled={fetching}
+                            autoComplete="off"
                         />
                     </div>
                 }

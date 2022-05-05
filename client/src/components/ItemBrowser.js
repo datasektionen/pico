@@ -84,7 +84,6 @@ const ItemBrowser = ({
     query = "",
     setQuery = () => { },
     noItemsString,
-    disableSearch = false,
     disableTopbar = false,
     disableItemsPerPagePicker = false,
     onDelete,
@@ -126,7 +125,7 @@ const ItemBrowser = ({
     return (
         <div className={classes.root}>
             <div className={classes.filter}>
-                <div style={disableSearch ? { display: "none" } : {}}>
+                <div>
                     <TextInput
                         value={query}
                         // onClear={() => setQuery("")}

@@ -34,7 +34,12 @@ export const authorizePls = async (req, res, next) => {
         const user = response.data;
 
         const plsResponse = await axios.get(`${configuration.PLS_API_URL}/user/${user.user}/pico`);
-        req.user = { ...user, pls: plsResponse.data };
+        // Fetch user's mandates from dfunkt
+        const mandates =
+            (await axios.get(`https://dfunkt.datasektionen.se/api/user/kthid/${user.user}/current`)).data.mandates
+                // Only save title and identifier
+                .map(m => ({ title: m.Role.title, identifier: m.Role.identifier }));
+        req.user = { ...user, pls: plsResponse.data, mandates };
 
         next();
     } catch (err) {
