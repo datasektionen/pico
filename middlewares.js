@@ -34,7 +34,14 @@ export const authorizePls = async (req, res, next) => {
         const user = response.data;
 
         const plsResponse = await axios.get(`${configuration.PLS_API_URL}/user/${user.user}/pico`);
-        req.user = { ...user, pls: plsResponse.data };
+        // Fetch user's mandates from dfunkt
+        const result =
+            (await axios.get(`https://dfunkt.datasektionen.se/api/user/kthid/${user.user}/current`)).data.mandates;
+        const mandates = result
+            // Only save title and identifier
+            .map(m => ({ title: m.Role.title, identifier: m.Role.identifier }));
+        const groups = result.map(m => ({ name: m.Role.Group.name, identifier: m.Role.Group.identifier })).filter((v, i, self) => i === self.findIndex(t => t.identifier === v.identifier));
+        req.user = { ...user, pls: plsResponse.data, mandates, groups };
 
         next();
     } catch (err) {
@@ -62,7 +69,7 @@ export const adminAuth = async (req, res, next) => {
 
 // Checks authorization but does not reject.
 // Takes token either in Authorization header or as a query string
-export const silentAuthorization = async (req, res, next)=> {
+export const silentAuthorization = async (req, res, next) => {
     const authorizationHeader = req.headers.authorization;
     let token;
     if (authorizationHeader) {

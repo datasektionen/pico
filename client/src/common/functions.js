@@ -1,5 +1,5 @@
 export const copyShortUrlToClipbord = (short) => {
-    const value = constructShortUrl(short)
+    const value = constructShortUrlWithProtocol(short)
     // Chrome
     if (navigator.clipboard) {
         navigator.clipboard.writeText(value);
