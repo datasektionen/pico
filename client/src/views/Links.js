@@ -125,6 +125,11 @@ const Links = ({ user, userMandates, allMandates, pls, allGroups }) => {
 
         return links.map(l => ({
             ...l,
+            short: (
+                <Tooltip label={l.short}>
+                    {l.short}
+                </Tooltip>
+            ),
             url: (
                 <Tooltip label={l.url}>
                     <a href={l.url} target="_blank" rel="noopener noreferrer">{l.url}</a>
@@ -224,8 +229,8 @@ const Links = ({ user, userMandates, allMandates, pls, allGroups }) => {
                                         nothingFound="Hittade inga användare"
                                         data={
                                             allLinks.map(i => ({ value: i.user, label: i.user }))
-                                            // Filter duplicates
-                                            .filter((v, i, self) => i === self.findIndex(t => t.value === v.value))
+                                                // Filter duplicates
+                                                .filter((v, i, self) => i === self.findIndex(t => t.value === v.value))
                                         }
                                         onChange={(value) => setFilterUserOption(value ?? "")}
                                         autoComplete="off"
