@@ -128,13 +128,22 @@ const LinkCreator = ({ title, desc, custom, userMandates }) => {
                 </div>
                 {userMandates.length !== 0 &&
                     <div className={classes.date}>
-                        <Text>Koppla länken till ett mandat?</Text>
+                        <Text>Koppla länken till ett mandat eller grupp?</Text>
                         <Select
                             label="Framtida funktionärer på posten blir ägare av länken"
-                            data={userMandates.map(m => ({
-                                label: m.Role.title,
-                                value: m.Role.identifier,
-                            })).sort((a, b) => a.label > b.label ? 1 : -1)}
+                            data={[
+                                // You can grant a group ownership
+                                ...userMandates.map(m => m.Role.Group).map(m => ({
+                                    label: `Alla i gruppen "${m.name}"`,
+                                    value: m.identifier,
+                                    group: "Grupper",
+                                })).filter((v, i, self) => i === self.findIndex(t => t.value === v.value)),
+                                ...userMandates.map(m => ({
+                                    label: m.Role.title,
+                                    value: m.Role.identifier,
+                                    group: m.Role.Group.name
+                                })).sort((a, b) => a.label > b.label ? 1 : -1),
+                            ]}
                             searchable
                             allowDeselect
                             {...form.getInputProps("mandate")}

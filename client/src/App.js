@@ -41,6 +41,7 @@ const App = () => {
 
     const [userMandates, setUserMandates] = useState([])
     const [allMandates, setallMandates] = useState([])
+    const [allGroups, setAllGroups] = useState([])
 
     const getUserMandates = () => {
         if (user.length === 0) return;
@@ -59,8 +60,17 @@ const App = () => {
             .catch(console.log)
     }
 
+    const getAllGroups = () => {
+        axios.get("https://dfunkt.datasektionen.se/api/groups/all", { headers: { Authorization: "" } })
+            .then(res => {
+                setAllGroups(res.data);
+            })
+            .catch(console.log)
+    }
+
     useEffect(getUserMandates, [user])
     useEffect(getAllMandates, [])
+    useEffect(getAllGroups, [])
 
     return (
         <MantineProvider
@@ -84,7 +94,7 @@ const App = () => {
                         <Shorten userMandates={userMandates} />
                     </Route>
                     <Route exact path="/links">
-                        <Links user={user} userMandates={userMandates} allMandates={allMandates} pls={pls} />
+                        <Links user={user} userMandates={userMandates} allMandates={allMandates} pls={pls} allGroups={allGroups} />
                     </Route>
                     <Route exact path="/login" render={match => {
                         window.location = `https://login.datasektionen.se/login?callback=${encodeURIComponent(window.location.origin)}/token/`;

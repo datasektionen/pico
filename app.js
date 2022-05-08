@@ -154,11 +154,12 @@ app.get("/api/all",
             // Find everything
             query = Item.find({});
         } else {
-            // Find links belonging to the user or the users' mandates
+            // Find links belonging to the user or the users' mandates or the users' groups
             query = Item.find({
                 $or: [
                     { user: req.user.user },
                     ...req.user.mandates.map(m => ({ mandate: m.identifier })),
+                    ...req.user.groups.map(g => ({ mandate: g.identifier })),
                 ],
             });
         }
@@ -185,6 +186,7 @@ app.delete("/api/:code",
         const hasAccess =
             item.user === req.user.user
             || req.user.mandates.map(m => m.identifier).includes(item.mandate)
+            || req.user.groups.map(g => g.identifier).includes(item.mandate)
             || req.user.pls.includes("admin");
 
         if (hasAccess) {

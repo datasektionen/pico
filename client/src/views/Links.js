@@ -19,7 +19,7 @@ const sortOptions = [
     { label: "Utgångsdatum (Senast-Tidigast)", value: "expire-old-new" },
 ];
 
-const Links = ({ user, userMandates, allMandates, pls }) => {
+const Links = ({ user, userMandates, allMandates, pls, allGroups }) => {
 
     const [fetchingLinks, setFetchingLinks] = useState(true);
     const [allLinks, setAllLinks] = useState([]);
@@ -78,6 +78,7 @@ const Links = ({ user, userMandates, allMandates, pls }) => {
         }))
             .then(res => {
                 setAllLinks(allLinks.filter(x => !links.includes(x.short)))
+                setError("");
             })
             .catch(res => {
                 setError(res.toString());
@@ -120,7 +121,7 @@ const Links = ({ user, userMandates, allMandates, pls }) => {
     }, [sortOption, filterOption, filterMandateOption, filterUserOption, allLinks, debouncedQuery])
 
     const linksAsItems = useMemo(() => {
-        const getMandateTitle = (mandate) => allMandates.find(x => x.identifier === mandate)?.title;
+        const getMandateTitle = (mandate) => allMandates.find(x => x.identifier === mandate)?.title ?? allMandates.find(x => x.Group.identifier === mandate)?.Group?.name;
 
         return links.map(l => ({
             ...l,
@@ -221,7 +222,11 @@ const Links = ({ user, userMandates, allMandates, pls }) => {
                                         searchable
                                         allowDeselect
                                         nothingFound="Hittade inga användare"
-                                        data={allLinks.map(i => ({ value: i.user, label: i.user })).filter((v, i, self) => i === self.findIndex(t => t.value === v.value))}
+                                        data={
+                                            allLinks.map(i => ({ value: i.user, label: i.user }))
+                                            // Filter duplicates
+                                            .filter((v, i, self) => i === self.findIndex(t => t.value === v.value))
+                                        }
                                         onChange={(value) => setFilterUserOption(value ?? "")}
                                         autoComplete="off"
                                     />
@@ -231,9 +236,10 @@ const Links = ({ user, userMandates, allMandates, pls }) => {
                                         allowDeselect
                                         nothingFound="Hittade inga mandat"
                                         data={[
-                                            { label: "Något mandat", value: "any-mandate" },
-                                            { label: "Inget mandat", value: "no-mandate" },
-                                            ...allMandates.map(m => ({ value: m.identifier, label: m.title }))
+                                            { label: "Något mandat", value: "any-mandate", group: "Generellt" },
+                                            { label: "Inget mandat", value: "no-mandate", group: "Generellt" },
+                                            ...allGroups.map(g => ({ value: g.identifier, label: g.name, group: "Grupper" })),
+                                            ...allMandates.map(m => ({ value: m.identifier, label: m.title, group: m.Group.name }))
                                         ]}
                                         onChange={(value) => setFilterMandateOption(value ?? "")}
                                         autoComplete="off"
