@@ -74,7 +74,7 @@ const Links = ({ user, userMandates, allMandates, pls, allGroups }) => {
     const removeLinks = (links) => {
         setDeleting(true)
         Promise.all(links.map(l => {
-            return axios.delete(`/api/${l}`)
+            return axios.delete(`/api/${l.short}`)
         }))
             .then(res => {
                 setAllLinks(allLinks.filter(x => !links.includes(x.short)))
