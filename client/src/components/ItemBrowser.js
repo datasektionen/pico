@@ -156,7 +156,7 @@ const ItemBrowser = ({
                                     rows={itemsOnCurrentPage}
                                     selectedRows={selectedRows}
                                     onSelectedRowsChange={setSelectedRows}
-                                    rowKeyGetter={row => row.short}
+                                    rowKeyGetter={row => row.short.props.children}
                                 />
                             </div>
                         </>
