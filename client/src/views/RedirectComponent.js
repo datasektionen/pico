@@ -3,12 +3,15 @@ import axios from "axios";
 import Configuration from "../configuration";
 import { useHistory } from "react-router";
 import Spinner from "../spinner.gif";
+import { Header } from "methone";
+import { Link } from "react-router-dom";
 
 const RedirectComponent = () => {
 
     const [initialLoading, setInitialLoading] = useState(true);
     const LINKS = ["/shorten", "/login", "/logout", "/links", "/token"]
     const history = useHistory();
+    const [error, setError] = useState(false);
 
     useEffect(() => {
         if (window.location.pathname === "/") {
@@ -17,18 +20,13 @@ const RedirectComponent = () => {
         }
         if (window.location.pathname.length !== 1 && LINKS.filter(x => x === window.location.pathname).length !== 1) {
             const short = window.location.pathname.split("/")[1]
-            axios.get(`${Configuration.apiUrl}/api/code/${short}`)
+            axios.get(`/api/code/${short}`)
                 .then(res => {
-                    // const url = res.data.url
-                    // if (!url.startsWith("https://") && !url.startsWith("http://")) {
-                    //     window.location = "https://" + res.data.url
-                    // } else {
-                        window.location = res.data.url
-                    // }
+                    window.location = res.data.url
                 })
                 .catch(err => {
                     setInitialLoading(false)
-                    history.push("/shorten")
+                    setError(true);
                 })
         } else {
             setInitialLoading(false)
@@ -41,6 +39,20 @@ const RedirectComponent = () => {
         <div style={{ display: "flex", justifyContent: "center", "alignItems": "center", height: "100%", width: "100%", backgroundColor: "#fff", zIndex: 100000, top: 0, position: "absolute" }}>
             <img src={Spinner} />
         </div>
+    )
+
+    if (error) return (
+        <>
+        <Header title="404 Not Found" />
+            <div style={{ margin: "150px 0" }}>
+                <div style={{ textAlign: "center" }}>
+                    <h2>Det där gick ju inte så bra :(</h2>
+                    <p>Länken du försökte använda finns inte, eller så har den gått ut eller tagits bort.</p>
+                    <p>Om du tror att något är fel, kontakta den som äger länken. Alternativt kan du mejla <a href="mailto:d-sys@datasektionen.se">systemansvarig</a>.</p>
+                    <Link to="/shorten">Hem</Link>
+                </div>
+            </div>
+        </>
     )
 
     return (
