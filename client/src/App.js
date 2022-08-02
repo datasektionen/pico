@@ -91,7 +91,7 @@ const App = () => {
                 />
                 <Switch>
                     <Route exact path="/shorten">
-                        <Shorten userMandates={userMandates} />
+                        <Shorten userMandates={userMandates} pls={pls} hasToken={hasToken} />
                     </Route>
                     <Route exact path="/links">
                         <Links user={user} userMandates={userMandates} allMandates={allMandates} pls={pls} allGroups={allGroups} />
