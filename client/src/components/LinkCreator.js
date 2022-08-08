@@ -22,7 +22,7 @@ const useStyles = createStyles(() => ({
     }
 }));
 
-const LinkCreator = ({ title, desc, custom, userMandates }) => {
+const LinkCreator = ({ title, desc, custom, userMandates, disabled }) => {
 
     const { classes } = useStyles();
     const [radio, setRadio] = useState("no");
@@ -102,19 +102,19 @@ const LinkCreator = ({ title, desc, custom, userMandates }) => {
                     className={classes.input}
                     placeholder="Lång jävla länk"
                     {...form.getInputProps("url")}
-                    disabled={fetching}
+                    disabled={fetching || disabled}
                 />
                 {custom &&
                     <TextInput
                         className={classes.input}
                         placeholder="Önskad förkortad länk"
                         {...form.getInputProps("short")}
-                        disabled={fetching}
+                        disabled={fetching || disabled}
                     />
                 }
                 <RadioGroup label="Utgångsdatum" value={radio} onChange={setRadio}>
-                    <Radio value="yes" label="Ja" disabled={fetching} />
-                    <Radio value="no" label="Nej" disabled={fetching} />
+                    <Radio value="yes" label="Ja" disabled={fetching || disabled} />
+                    <Radio value="no" label="Nej" disabled={fetching || disabled} />
                 </RadioGroup>
                 <div className={classes.date}>
                     {radio === "yes" &&
@@ -122,7 +122,7 @@ const LinkCreator = ({ title, desc, custom, userMandates }) => {
                             id="expire-time"
                             type="datetime-local"
                             {...form.getInputProps("expire")}
-                            disabled={fetching}
+                            disabled={fetching || disabled}
                         />
                     }
                 </div>
@@ -147,12 +147,12 @@ const LinkCreator = ({ title, desc, custom, userMandates }) => {
                             searchable
                             allowDeselect
                             {...form.getInputProps("mandate")}
-                            disabled={fetching}
+                            disabled={fetching || disabled}
                             autoComplete="off"
                         />
                     </div>
                 }
-                <Button type="submit" disabled={submitDisabled || fetching}>Förkorta</Button>
+                <Button type="submit" disabled={submitDisabled || fetching || disabled}>Förkorta</Button>
             </form>
             {result &&
                 <>

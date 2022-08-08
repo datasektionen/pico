@@ -45,7 +45,7 @@ export const authorizePls = async (req, res, next) => {
 
         next();
     } catch (err) {
-        res.sendStatus(401);
+        res.sendStatus(500);
         return;
     }
 };
@@ -55,7 +55,7 @@ export const desiredAuth = (req, res, next) => {
         if (req.user.pls.includes("custom-link") || req.user.pls.includes("admin")) {
             return next();
         }
-        res.sendStatus(401);
+        res.sendStatus(403);
     } else {
         next();
     }
@@ -64,7 +64,7 @@ export const desiredAuth = (req, res, next) => {
 export const adminAuth = async (req, res, next) => {
     if (req.user.pls.includes("admin")) return next();
 
-    res.sendStatus(401);
+    res.sendStatus(403);
 };
 
 // Checks authorization but does not reject.
