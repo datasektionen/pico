@@ -3,7 +3,7 @@ import { validationResult } from "express-validator";
 import httpContext from "express-http-context";
 import { configuration } from "./configuration";
 import { NextFunction, Request, Response } from "express";
-import { getContext } from "./utils";
+import { canCreateCustomLinks, getContext, hasMandate, isAdmin } from "./utils";
 import { CurrentMandate } from "./types";
 
 export const validationCheck = (
@@ -51,6 +51,7 @@ export const authorizePls = async (
             `${configuration.PLS_API_URL}/user/${user.user}/pico`
         );
         // Fetch user's mandates from dfunkt
+        // TODO: Cache this
         const result: CurrentMandate[] = (
             await axios.get(
                 `https://dfunkt.datasektionen.se/api/user/kthid/${user.user}/current`
@@ -93,7 +94,7 @@ export const desiredAuth = (
 ) => {
     if (req.body.desired) {
         const { user } = getContext();
-        if (user.pls.includes("custom-link") || user.pls.includes("admin")) {
+        if (canCreateCustomLinks(user) || isAdmin(user)) {
             return next();
         }
         res.sendStatus(403);
@@ -102,13 +103,30 @@ export const desiredAuth = (
     }
 };
 
+export const mandateAuth = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    const { user } = getContext();
+    const mandate = req.body.mandate;
+    if (mandate) {
+        if (!hasMandate(user, mandate) && !isAdmin(user)) {
+            return res.status(403).json({
+                error: "You are not allowed to assign to that mandate/group",
+            });
+        }
+    }
+    next();
+};
+
 export const adminAuth = async (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
     const { user } = getContext();
-    if (user.pls.includes("admin")) return next();
+    if (isAdmin(user)) return next();
 
     res.sendStatus(403);
 };

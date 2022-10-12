@@ -1,6 +1,12 @@
 import { Request, Response } from "express";
 import Item from "./models/Item";
-import { banned, generateShortString, getContext } from "./utils";
+import {
+    banned,
+    generateShortString,
+    getContext,
+    isAdmin,
+    getHasDeleteAccess,
+} from "./utils";
 
 // Checks if a token is valid
 // Returns user info or 400
@@ -34,12 +40,13 @@ export const createLink = async (req: Request, res: Response) => {
 
     const data: any = {
         url,
-        // user: req.user.user,
         user: user.user,
         expires: expires ?? null,
     };
 
-    if (mandate) data["mandate"] = mandate;
+    if (mandate) {
+        data["mandate"] = mandate;
+    }
 
     // If specified a desired short url
     if (desired) {
@@ -74,23 +81,19 @@ export const createLink = async (req: Request, res: Response) => {
             res.status(500).send(err);
         });
 };
+
 export const getAllLinks = async (req: Request, res: Response) => {
     let query;
 
     const { user } = getContext();
-    console.log(user);
 
-    // if (req.user.pls.includes("admin")) {
-    if (user.pls.includes("admin")) {
+    if (isAdmin(user)) {
         // Find everything
         query = Item.find({});
     } else {
         // Find links belonging to the user or the users' mandates or the users' groups
         query = Item.find({
             $or: [
-                // { user: req.user.user },
-                // ...req.user.mandates.map((m) => ({ mandate: m.identifier })),
-                // ...req.user.groups.map((g) => ({ mandate: g.identifier })),
                 { user: user.user },
                 ...user.mandates.map((m) => ({ mandate: m.identifier })),
                 ...user.groups.map((g) => ({ mandate: g.identifier })),
@@ -102,6 +105,7 @@ export const getAllLinks = async (req: Request, res: Response) => {
         .then((data) => res.json(data))
         .catch((err) => res.status(500).send(err));
 };
+
 export const getLink = async (req: Request, res: Response) => {
     const { code } = req.params;
     const item = await Item.findOneAndUpdate(
@@ -111,24 +115,15 @@ export const getLink = async (req: Request, res: Response) => {
     if (!item) return res.sendStatus(404);
     return res.status(200).json(item);
 };
+
 export const deleteLink = async (req: Request, res: Response) => {
     const { code } = req.params;
     const item = await Item.findOne({ short: code });
     if (!item) return res.sendStatus(404);
 
     const { user } = getContext();
-    console.log(user);
 
-    // Creator of link, has same mandate as link, or is admin
-    const hasAccess =
-        // item.user === req.user.user ||
-        // req.user.mandates.map((m) => m.identifier).includes(item.mandate) ||
-        // req.user.groups.map((g) => g.identifier).includes(item.mandate) ||
-        // req.user.pls.includes("admin");
-        item.user === user.user ||
-        user.mandates.map((m) => m.identifier).includes(item.mandate) ||
-        user.groups.map((g) => g.identifier).includes(item.mandate) ||
-        user.pls.includes("admin");
+    const hasAccess = getHasDeleteAccess(user, item);
 
     if (hasAccess) {
         await Item.deleteOne({ short: code });

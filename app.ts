@@ -3,14 +3,12 @@ import cors from "cors";
 import { configuration } from "./configuration";
 import mongoose from "mongoose";
 import morgan from "morgan";
-import path from "path";
 import Item from "./models/Item.js";
 import { router } from "./router";
 
 import { CronJob } from "cron";
 import httpContext from "express-http-context";
 
-// const __dirname = path.resolve();
 const app = express();
 app.use(express.json());
 app.use(cors());

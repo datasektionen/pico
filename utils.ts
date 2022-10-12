@@ -10,6 +10,42 @@ export const getContext = (): Context => ({
     user: httpContext.get("user") as User,
 });
 
+const PLS_PERMISSIONS = {
+    ADMIN: "admin",
+    CUSTOM_LINK: "custom-link",
+};
+
+// TODO: Test
+export const isAdmin = (user: User) => {
+    return user.pls.includes(PLS_PERMISSIONS.ADMIN);
+};
+
+// TODO: Test
+export const canCreateCustomLinks = (user: User) => {
+    return user.pls.includes(PLS_PERMISSIONS.CUSTOM_LINK);
+};
+
+// TODO: Test
+export const hasMandate = (user: User, mandate: string) =>
+    user.mandates.map((m) => m.identifier).includes(mandate) ||
+    user.groups.map((g) => g.identifier).includes(mandate);
+
+// If there is no mandate on the link, and the user owns it, returns true
+// If there is a mandate on the link, and the user currently holds that mandate, return true
+// If the user is admin, return true
+// Else return false
+// TODO: Test
+export const getHasDeleteAccess = (user: User, item: any): boolean => {
+    if (isAdmin(user)) return true;
+
+    if (item.mandate) {
+        if (hasMandate(user, item.mandate)) return true;
+    } else {
+        if (item.user === user.user) return true;
+    }
+    return false;
+};
+
 export const generateShortString = async () => {
     let iterator = 0;
     while (true && iterator < 1000) {

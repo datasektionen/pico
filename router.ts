@@ -4,6 +4,7 @@ import path from "path";
 import {
     authorizePls,
     desiredAuth,
+    mandateAuth,
     silentAuthorization,
     validationCheck,
 } from "./middlewares";
@@ -13,7 +14,7 @@ import {
     getAllLinks,
     getLink,
     checkToken,
-} from "./controllers";
+} from "./services";
 
 const r = Router();
 
@@ -23,6 +24,7 @@ r.post(
     // You must be logged in, but you need no pls permissions
     authorizePls,
     desiredAuth,
+    mandateAuth,
     body("url")
         .exists()
         .withMessage("is required")
