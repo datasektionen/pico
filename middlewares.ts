@@ -1,6 +1,7 @@
 import axios from "axios";
 import { validationResult } from "express-validator";
-import configuration from "./configuration.js";
+import httpContext from "express-http-context";
+import { configuration } from "./configuration";
 
 export const validationCheck = (req, res, next) => {
     const errors = validationResult(req);
@@ -25,7 +26,9 @@ export const authorizePls = async (req, res, next) => {
     }
 
     try {
-        const response = await axios.get(`${configuration.LOGIN_API_URL}/verify/${token}.json?api_key=${configuration.LOGIN_API_KEY}`);
+        const response = await axios.get(
+            `${configuration.LOGIN_API_URL}/verify/${token}.json?api_key=${configuration.LOGIN_API_KEY}`
+        );
         if (response.status !== 200) {
             res.sendStatus(401);
             return;
@@ -33,15 +36,37 @@ export const authorizePls = async (req, res, next) => {
 
         const user = response.data;
 
-        const plsResponse = await axios.get(`${configuration.PLS_API_URL}/user/${user.user}/pico`);
+        const plsResponse = await axios.get(
+            `${configuration.PLS_API_URL}/user/${user.user}/pico`
+        );
         // Fetch user's mandates from dfunkt
-        const result =
-            (await axios.get(`https://dfunkt.datasektionen.se/api/user/kthid/${user.user}/current`)).data.mandates;
+        const result = (
+            await axios.get(
+                `https://dfunkt.datasektionen.se/api/user/kthid/${user.user}/current`
+            )
+        ).data.mandates;
         const mandates = result
             // Only save title and identifier
-            .map(m => ({ title: m.Role.title, identifier: m.Role.identifier }));
-        const groups = result.map(m => ({ name: m.Role.Group.name, identifier: m.Role.Group.identifier })).filter((v, i, self) => i === self.findIndex(t => t.identifier === v.identifier));
+            .map((m) => ({
+                title: m.Role.title,
+                identifier: m.Role.identifier,
+            }));
+        const groups = result
+            .map((m) => ({
+                name: m.Role.Group.name,
+                identifier: m.Role.Group.identifier,
+            }))
+            .filter(
+                (v, i, self) =>
+                    i === self.findIndex((t) => t.identifier === v.identifier)
+            );
         req.user = { ...user, pls: plsResponse.data, mandates, groups };
+        httpContext.set("user", {
+            ...user,
+            pls: plsResponse.data,
+            mandates,
+            groups,
+        });
 
         next();
     } catch (err) {
@@ -52,7 +77,10 @@ export const authorizePls = async (req, res, next) => {
 
 export const desiredAuth = (req, res, next) => {
     if (req.body.desired) {
-        if (req.user.pls.includes("custom-link") || req.user.pls.includes("admin")) {
+        if (
+            req.user.pls.includes("custom-link") ||
+            req.user.pls.includes("admin")
+        ) {
             return next();
         }
         res.sendStatus(403);
@@ -84,7 +112,9 @@ export const silentAuthorization = async (req, res, next) => {
     }
 
     try {
-        const response = await axios.get(`${configuration.LOGIN_API_URL}/verify/${token}.json?api_key=${configuration.LOGIN_API_KEY}`);
+        const response = await axios.get(
+            `${configuration.LOGIN_API_URL}/verify/${token}.json?api_key=${configuration.LOGIN_API_KEY}`
+        );
         if (response.status !== 200) {
             next();
             return;
@@ -92,7 +122,9 @@ export const silentAuthorization = async (req, res, next) => {
 
         const user = response.data;
 
-        const plsResponse = await axios.get(`${configuration.PLS_API_URL}/user/${user.user}/pico`);
+        const plsResponse = await axios.get(
+            `${configuration.PLS_API_URL}/user/${user.user}/pico`
+        );
         req.user = { ...user, pls: plsResponse.data };
 
         next();
