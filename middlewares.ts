@@ -2,8 +2,15 @@ import axios from "axios";
 import { validationResult } from "express-validator";
 import httpContext from "express-http-context";
 import { configuration } from "./configuration";
+import { NextFunction, Request, Response } from "express";
+import { getContext } from "./utils";
+import { CurrentMandate } from "./types";
 
-export const validationCheck = (req, res, next) => {
+export const validationCheck = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -11,7 +18,11 @@ export const validationCheck = (req, res, next) => {
     next();
 };
 
-export const authorizePls = async (req, res, next) => {
+export const authorizePls = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     const authorizationHeader = req.headers.authorization;
     let token;
     if (authorizationHeader) {
@@ -40,7 +51,7 @@ export const authorizePls = async (req, res, next) => {
             `${configuration.PLS_API_URL}/user/${user.user}/pico`
         );
         // Fetch user's mandates from dfunkt
-        const result = (
+        const result: CurrentMandate[] = (
             await axios.get(
                 `https://dfunkt.datasektionen.se/api/user/kthid/${user.user}/current`
             )
@@ -60,7 +71,7 @@ export const authorizePls = async (req, res, next) => {
                 (v, i, self) =>
                     i === self.findIndex((t) => t.identifier === v.identifier)
             );
-        req.user = { ...user, pls: plsResponse.data, mandates, groups };
+        // req.user = { ...user, pls: plsResponse.data, mandates, groups };
         httpContext.set("user", {
             ...user,
             pls: plsResponse.data,
@@ -75,12 +86,14 @@ export const authorizePls = async (req, res, next) => {
     }
 };
 
-export const desiredAuth = (req, res, next) => {
+export const desiredAuth = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     if (req.body.desired) {
-        if (
-            req.user.pls.includes("custom-link") ||
-            req.user.pls.includes("admin")
-        ) {
+        const { user } = getContext();
+        if (user.pls.includes("custom-link") || user.pls.includes("admin")) {
             return next();
         }
         res.sendStatus(403);
@@ -89,15 +102,24 @@ export const desiredAuth = (req, res, next) => {
     }
 };
 
-export const adminAuth = async (req, res, next) => {
-    if (req.user.pls.includes("admin")) return next();
+export const adminAuth = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    const { user } = getContext();
+    if (user.pls.includes("admin")) return next();
 
     res.sendStatus(403);
 };
 
 // Checks authorization but does not reject.
 // Takes token either in Authorization header or as a query string
-export const silentAuthorization = async (req, res, next) => {
+export const silentAuthorization = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     const authorizationHeader = req.headers.authorization;
     let token;
     if (authorizationHeader) {
@@ -125,7 +147,8 @@ export const silentAuthorization = async (req, res, next) => {
         const plsResponse = await axios.get(
             `${configuration.PLS_API_URL}/user/${user.user}/pico`
         );
-        req.user = { ...user, pls: plsResponse.data };
+        // req.user = { ...user, pls: plsResponse.data };
+        httpContext.set("user", { ...user, pls: plsResponse.data });
 
         next();
     } catch (err) {
