@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import Item from "./models/Item";
+import { Item } from "./models";
 import {
     banned,
     generateShortString,

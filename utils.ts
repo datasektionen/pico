@@ -4,7 +4,7 @@ import httpContext from "express-http-context";
 import path from "path";
 import fs from "fs";
 import { Context, User } from "./types";
-import Item from "./models/Item";
+import { Item } from "./models";
 
 export const getContext = (): Context => ({
     user: httpContext.get("user") as User,
@@ -51,9 +51,11 @@ export const generateShortString = async () => {
     while (true && iterator < 1000) {
         const key = cryptoRandomString({
             length: configuration.SHORT_URL_LENGTH,
+            // TODO: Update to latest version and fix the module issue
             type: "base64",
         });
-        if ((await Item.findOne({ short: key })) == null) {
+        const exists = await Item.findOne({ short: key });
+        if (!exists) {
             return key;
         }
         iterator++;

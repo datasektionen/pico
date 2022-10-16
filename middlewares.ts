@@ -72,7 +72,7 @@ export const authorizePls = async (
                 (v, i, self) =>
                     i === self.findIndex((t) => t.identifier === v.identifier)
             );
-        // req.user = { ...user, pls: plsResponse.data, mandates, groups };
+
         httpContext.set("user", {
             ...user,
             pls: plsResponse.data,

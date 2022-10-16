@@ -3,7 +3,7 @@ import cors from "cors";
 import { configuration } from "./configuration";
 import mongoose from "mongoose";
 import morgan from "morgan";
-import Item from "./models/Item.js";
+import { Item } from "./models";
 import { router } from "./router";
 
 import { CronJob } from "cron";
