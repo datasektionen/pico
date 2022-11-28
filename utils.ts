@@ -15,7 +15,7 @@ const PLS_PERMISSIONS = {
     CUSTOM_LINK: "custom-link",
 };
 
-const LINK_REGEXP = /^[a-z0-9_\-]+$/
+const LINK_REGEXP = /^[a-z0-9_\-]+$/;
 
 // TODO: Test
 export const isAdmin = (user: User) => {
@@ -54,7 +54,7 @@ export const generateShortString = async () => {
         const key = cryptoRandomString({
             length: configuration.SHORT_URL_LENGTH,
             // TODO: Update to latest version and fix the module issue
-            type: "base64",
+            characters: "abcdefghijklmnopqrstuvxyz01234567890-_", // sorry for this
         });
         const exists = await Item.findOne({ short: key });
         if (!exists) {
@@ -85,5 +85,5 @@ const getBlackList = () => {
 
 getBlackList();
 
-
-export const isValidDesiredLink = (desired: string) : boolean => LINK_REGEXP.test(desired)
+export const isValidDesiredLink = (desired: string): boolean =>
+    LINK_REGEXP.test(desired);
