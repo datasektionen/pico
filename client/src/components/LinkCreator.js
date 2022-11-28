@@ -107,7 +107,7 @@ const LinkCreator = ({ title, desc, custom, userMandates, disabled }) => {
                 {custom &&
                     <TextInput
                         className={classes.input}
-                        placeholder="Önskad förkortad länk"
+                        placeholder="Önskad förkortad länk, till exempel 'sm-handlingar'"
                         {...form.getInputProps("short")}
                         disabled={fetching || disabled}
                     />
