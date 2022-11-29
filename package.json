@@ -16,8 +16,8 @@
         "build": "npm run build:backend",
         "dev": "ts-node-dev --respawn app.ts",
         "dev:db": "docker-compose -f .docker/docker-compose-dev.yml up",
-        "lint": "eslint . --ext .js",
-        "lint:fix": "eslint . --ext .js --fix"
+        "lint": "eslint . --ext .js,.ts",
+        "lint:fix": "eslint . --ext .js,.ts --fix"
     },
     "dependencies": {
         "axios": "^0.21.4",
