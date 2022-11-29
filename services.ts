@@ -6,6 +6,7 @@ import {
     getContext,
     isAdmin,
     getHasDeleteAccess,
+    isValidDesiredLink,
 } from "./utils";
 
 // Checks if a token is valid
@@ -52,6 +53,16 @@ export const createLink = async (req: Request, res: Response) => {
     if (desired) {
         data["short"] = desired;
         const desiredExists = await Item.findOne({ short: desired });
+        if (!isValidDesiredLink(desired)) {
+            return res.status(400).json({
+                errors: [
+                    {
+                        msg: `"${desired}" is invalid, valid characters are [a-z0-9], '-' and '_'.`,
+                        param: "",
+                    },
+                ],
+            });
+        }
         if (desiredExists !== null) {
             return res.status(400).json({
                 errors: [
