@@ -121,7 +121,7 @@ export const getLink = async (req: Request, res: Response) => {
     const { code } = req.params;
     const item = await Item.findOneAndUpdate(
         { short: code },
-        { $inc: { clicks: 1 } }
+        { $inc: { clicks: 1 } },
     );
     if (!item) return res.sendStatus(404);
     return res.status(200).json(item);
