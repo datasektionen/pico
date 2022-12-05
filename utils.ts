@@ -6,7 +6,7 @@ import fs from "fs";
 import { Context, User } from "./types";
 import { Item } from "./models";
 
-export const getContext = () : Context => ({
+export const getContext = (): Context => ({
     user: httpContext.get("user") as User,
 });
 
@@ -42,7 +42,9 @@ export const getHasDeleteAccess = (user: User, item: any): boolean => {
 
     if (item.mandate) {
         if (hasMandate(user, item.mandate)) return true;
-    } else if (item.user === user.user) {return true;}
+    } else if (item.user === user.user) {
+        return true;
+    }
     return false;
 };
 
@@ -71,7 +73,7 @@ const getBlackList = () => {
     (async () => {
         console.log("Start read");
         const file = fs.readFileSync(
-            path.join(__dirname, "resources", "everything.txt"),
+            path.join(__dirname, "resources", "everything.txt")
         );
         const lines = file.toString().split("\n");
         for (const line of lines) {
