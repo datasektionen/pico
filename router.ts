@@ -34,7 +34,7 @@ r.post(
             require_protocol: true,
         })
         .withMessage(
-            "should be a valid URL and include the protocol (http:// or https://)"
+            "should be a valid URL and include the protocol (http:// or https://)",
         ),
     body("desired")
         .optional()
@@ -45,7 +45,7 @@ r.post(
         .optional()
         .isInt({ gt: Date.now() })
         .withMessage(
-            `should be an int greater than current unix time in ms (${Date.now()} )`
+            `should be an int greater than current unix time in ms (${Date.now()} )`,
         ),
     body("mandate")
         .optional()
@@ -53,7 +53,7 @@ r.post(
         .withMessage("should be a string")
         .trim(),
     validationCheck,
-    createLink
+    createLink,
 );
 
 r.get("/api/all", authorizePls, getAllLinks);
@@ -64,7 +64,7 @@ r.delete("/api/:code", authorizePls, deleteLink);
 
 r.use(express.static(path.join(__dirname, "client", "build")));
 r.get("*", (req, res) =>
-    res.sendFile(path.join(__dirname, "client", "build", "index.html"))
+    res.sendFile(path.join(__dirname, "client", "build", "index.html")),
 );
 
 export const router = r;

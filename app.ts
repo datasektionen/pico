@@ -43,7 +43,7 @@ const clearExpiredLinks = async () => {
     const result = await Promise.all(
         ids.map((id) => {
             return Item.findByIdAndDelete(id);
-        })
+        }),
     );
 
     if (result.length > 0) {
