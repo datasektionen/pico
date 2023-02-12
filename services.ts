@@ -57,7 +57,7 @@ export const createLink = async (req: Request, res: Response) => {
             return res.status(400).json({
                 errors: [
                     {
-                        msg: `"${desired}" is invalid, valid characters are [a-z0-9], '-' and '_'.`,
+                        msg: `"${desired}" is invalid, valid characters are [a-z0-9], '-' and '_'`,
                         param: "",
                     },
                 ],
