@@ -22,7 +22,7 @@ const schema = new mongoose.Schema(
     },
     {
         versionKey: false,
-    },
+    }
 );
 
 export const Item = mongoose.model("Item", schema);

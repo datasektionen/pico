@@ -9,7 +9,7 @@ import { CurrentMandate } from "./types";
 export const validationCheck = (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
 ) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -21,7 +21,7 @@ export const validationCheck = (
 export const authorizePls = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
 ) => {
     const authorizationHeader = req.headers.authorization;
     let token;
@@ -38,7 +38,7 @@ export const authorizePls = async (
 
     try {
         const response = await axios.get(
-            `${configuration.LOGIN_API_URL}/verify/${token}.json?api_key=${configuration.LOGIN_API_KEY}`,
+            `${configuration.LOGIN_API_URL}/verify/${token}.json?api_key=${configuration.LOGIN_API_KEY}`
         );
         if (response.status !== 200) {
             res.sendStatus(401);
@@ -48,13 +48,13 @@ export const authorizePls = async (
         const user = response.data;
 
         const plsResponse = await axios.get(
-            `${configuration.PLS_API_URL}/user/${user.user}/pico`,
+            `${configuration.PLS_API_URL}/user/${user.user}/pico`
         );
         // Fetch user's mandates from dfunkt
         // TODO: Cache this
         const result: CurrentMandate[] = (
             await axios.get(
-                `https://dfunkt.datasektionen.se/api/user/kthid/${user.user}/current`,
+                `https://dfunkt.datasektionen.se/api/user/kthid/${user.user}/current`
             )
         ).data.mandates;
         const mandates = result
@@ -70,7 +70,7 @@ export const authorizePls = async (
             }))
             .filter(
                 (v, i, self) =>
-                    i === self.findIndex((t) => t.identifier === v.identifier),
+                    i === self.findIndex((t) => t.identifier === v.identifier)
             );
 
         httpContext.set("user", {
@@ -90,7 +90,7 @@ export const authorizePls = async (
 export const desiredAuth = (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
 ) => {
     if (req.body.desired) {
         const { user } = getContext();
@@ -106,7 +106,7 @@ export const desiredAuth = (
 export const mandateAuth = (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
 ) => {
     const { user } = getContext();
     const mandate = req.body.mandate;
@@ -123,7 +123,7 @@ export const mandateAuth = (
 export const adminAuth = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
 ) => {
     const { user } = getContext();
     if (isAdmin(user)) return next();
@@ -136,7 +136,7 @@ export const adminAuth = async (
 export const silentAuthorization = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
 ) => {
     const authorizationHeader = req.headers.authorization;
     let token;
@@ -153,7 +153,7 @@ export const silentAuthorization = async (
 
     try {
         const response = await axios.get(
-            `${configuration.LOGIN_API_URL}/verify/${token}.json?api_key=${configuration.LOGIN_API_KEY}`,
+            `${configuration.LOGIN_API_URL}/verify/${token}.json?api_key=${configuration.LOGIN_API_KEY}`
         );
         if (response.status !== 200) {
             next();
@@ -163,7 +163,7 @@ export const silentAuthorization = async (
         const user = response.data;
 
         const plsResponse = await axios.get(
-            `${configuration.PLS_API_URL}/user/${user.user}/pico`,
+            `${configuration.PLS_API_URL}/user/${user.user}/pico`
         );
         // req.user = { ...user, pls: plsResponse.data };
         httpContext.set("user", { ...user, pls: plsResponse.data });
