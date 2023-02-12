@@ -1,5 +1,7 @@
 {
-	"extends": "eslint:recommended",
+	"extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+	"parser": "@typescript-eslint/parser",
+	"plugins": ["@typescript-eslint"],
 	"env": {
 		"node": true,
 		"es6": true
@@ -22,7 +24,7 @@
 		"no-console": "off",
 		"no-empty-function": "error",
 		"no-floating-decimal": "error",
-		"no-inline-comments": "error",
+		"no-inline-comments": "warn",
 		"no-lonely-if": "error",
 		"no-multi-spaces": "error",
 		"no-multiple-empty-lines": ["error", { "max": 2, "maxEOF": 1, "maxBOF": 0 }],
