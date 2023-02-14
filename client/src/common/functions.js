@@ -1,5 +1,5 @@
 export const copyShortUrlToClipbord = (short) => {
-    const value = constructShortUrlWithProtocol(short)
+    const value = constructShortUrlWithProtocol(short);
     // Chrome
     if (navigator.clipboard) {
         navigator.clipboard.writeText(value);
@@ -11,7 +11,8 @@ export const copyShortUrlToClipbord = (short) => {
         document.execCommand("copy");
         text.remove();
     }
-}
+};
 
 export const constructShortUrl = (short) => window.location.host + "/" + short;
-export const constructShortUrlWithProtocol = (short) => window.location.origin + "/" + short;
+export const constructShortUrlWithProtocol = (short) =>
+    window.location.origin + "/" + short;

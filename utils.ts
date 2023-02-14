@@ -15,7 +15,7 @@ const PLS_PERMISSIONS = {
     CUSTOM_LINK: "custom-link",
 };
 
-const LINK_REGEXP = /^[a-z0-9_\-]+$/;
+const LINK_REGEXP = /^[a-z0-9_-]+$/;
 
 // TODO: Test
 export const isAdmin = (user: User) => {
@@ -42,8 +42,8 @@ export const getHasDeleteAccess = (user: User, item: any): boolean => {
 
     if (item.mandate) {
         if (hasMandate(user, item.mandate)) return true;
-    } else {
-        if (item.user === user.user) return true;
+    } else if (item.user === user.user) {
+        return true;
     }
     return false;
 };
@@ -54,7 +54,8 @@ export const generateShortString = async () => {
         const key = cryptoRandomString({
             length: configuration.SHORT_URL_LENGTH,
             // TODO: Update to latest version and fix the module issue
-            characters: "abcdefghijklmnopqrstuvxyz01234567890-_", // sorry for this
+            // sorry for this
+            characters: "abcdefghijklmnopqrstuvxyz01234567890-_",
         });
         const exists = await Item.findOne({ short: key });
         if (!exists) {

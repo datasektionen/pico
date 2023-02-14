@@ -1,6 +1,6 @@
-import axios from 'axios';
-import { useEffect, useState } from 'react'
-import Configuration from '../configuration';
+import axios from "axios";
+import { useEffect, useState } from "react";
+import Configuration from "../configuration";
 
 // Hook that runs once on application mount. Checks the token (if any) and sets admin status and loading status
 const useAuthorization = () => {
@@ -11,21 +11,22 @@ const useAuthorization = () => {
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-        if (token) setHasToken(true)
-        axios.get("/api/check-token")
-        .then(res => {
-            setPls(res.data.pls)
-            setUser(res.data.user)
-        })
-        .catch(res => {
-            setHasToken(false)
-            setPls([])
-            setUser([])
-        })
-        .finally(() => setLoading(false))
-    }, [])
+        if (token) setHasToken(true);
+        axios
+            .get("/api/check-token")
+            .then((res) => {
+                setPls(res.data.pls);
+                setUser(res.data.user);
+            })
+            .catch((res) => {
+                setHasToken(false);
+                setPls([]);
+                setUser([]);
+            })
+            .finally(() => setLoading(false));
+    }, []);
 
-    return { pls, loading, hasToken, user }
-}
+    return { pls, loading, hasToken, user };
+};
 
 export default useAuthorization;
