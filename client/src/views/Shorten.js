@@ -62,15 +62,8 @@ const Shorten = ({ userMandates, pls, hasToken }) => {
                         title="Specificera förkortad länk"
                         desc={
                             <>
-                                <p>
-                                    Önska en förkortad länk, exempelvis "ior".
-                                    Giltiga tecken: a-z, 0-9
-                                </p>
-                                <p>
-                                    Används för exempelvis rekryteringsformulär
-                                    för nämnder. Du måste vara funktionär för
-                                    att nyttja denna funktionalitet.
-                                </p>
+                                <p>Önska en förkortad länk, exempelvis "ior". Giltiga tecken: a-z, 0-9, -, och _.</p>
+                                <p>Används för exempelvis rekryteringsformulär för nämnder. Du måste vara funktionär för att nyttja denna funktionalitet.</p>
                             </>
                         }
                         custom

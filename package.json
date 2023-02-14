@@ -13,7 +13,7 @@
         "postinstall": "cd client && npm install",
         "build:backend": "tsc && mkdir -p dist/resources && cp resources/everything.txt dist/resources/everything.txt",
         "build:frontend": "cd client && npm run build",
-        "build": "npm run build:backend",
+        "build": "npm run build:backend && npm run build:frontend && mv client/ dist/",
         "dev": "ts-node-dev --respawn app.ts",
         "dev:db": "docker-compose -f .docker/docker-compose-dev.yml up",
         "lint": "eslint . --ext .js,.ts",
