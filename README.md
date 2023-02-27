@@ -54,6 +54,7 @@ See [configuration.ts](configuration.ts)
 Make sure you use the node version specified in `.nvmrc`.
 
 1. Set up environment variables
+1. `nvm use` (you need to run this in each terminal window you open, unless you set the default version to 16.5.0)
 1. Run `npm install` in root. Will install dependencies in both server and client.
 1. Start database: `npm run dev:db`
 1. Run `npm run dev` in project root
