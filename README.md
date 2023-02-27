@@ -51,6 +51,7 @@ See [configuration.ts](configuration.ts)
 
 # How to run
 ## Development
+Make sure you use the node version specified in `.nvmrc`.
 
 1. Set up environment variables
 1. Run `npm install` in root. Will install dependencies in both server and client.
