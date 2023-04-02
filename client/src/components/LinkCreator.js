@@ -11,7 +11,7 @@ import {
     Center,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { useState } from "react";
+import {  useState } from "react";
 import axios from "axios";
 import {
     copyShortUrlToClipbord,
@@ -19,6 +19,8 @@ import {
     constructShortUrlWithProtocol,
 } from "../common/functions";
 import { Tooltip } from "@mantine/core";
+import { QRCode } from "react-qrcode-logo";
+
 
 const useStyles = createStyles(() => ({
     root: {
@@ -44,7 +46,7 @@ const LinkCreator = ({ title, desc, custom, userMandates, disabled }) => {
     const [error, setError] = useState({ title: "", message: "" });
     const [result, setResult] = useState("");
     const [copied, setCopied] = useState(false);
-
+    
     const form = useForm({
         initialValues: {
             url: "",
@@ -248,10 +250,21 @@ const LinkCreator = ({ title, desc, custom, userMandates, disabled }) => {
                                     }}
                                     disabled={fetching}
                                 >
-                                    Kopiera
+                                    Kopiera länk
                                 </Button>
                             </Tooltip>
                         </div>
+                    </Center>
+                    <br/>
+                    <Center>
+                        <QRCode
+                            value={constructShortUrl(result)}
+                            size={240}
+                            level="H"
+                            renderAs="canvas"
+                            logoImage="/logo.svg"
+                            logoWidth={52}
+                        />
                     </Center>
                 </>
             )}
