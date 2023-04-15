@@ -171,6 +171,7 @@ const ItemBrowser = ({
                         >
                             <DataGrid
                                 style={{ blockSize: "100%", contain: "content" }}
+                                className="rdg-light"
                                 columns={columns}
                                 rows={itemsOnCurrentPage}
                                 selectedRows={selectedRows}
