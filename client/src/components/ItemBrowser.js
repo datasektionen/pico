@@ -170,7 +170,7 @@ const ItemBrowser = ({
                             }}
                         >
                             <DataGrid
-                                style={{ height: "100%" }}
+                                style={{ blockSize: "100%", contain: "content" }}
                                 columns={columns}
                                 rows={itemsOnCurrentPage}
                                 selectedRows={selectedRows}
