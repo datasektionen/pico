@@ -28,7 +28,7 @@ Pls - to check admin priveleges of users
 
 # Environment variables
 
-To get a login API-key contact <a href="mailto:d-sys@d.kth.se">d-sys</a>.
+To get a login API-key contact <a href="mailto:d-sys@datasektionen.se">d-sys</a>.
 
 ## Server
 See [configuration.ts](configuration.ts)
