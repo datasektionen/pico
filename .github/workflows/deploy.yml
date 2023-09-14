@@ -33,3 +33,4 @@ jobs:
         remote-branch: 'master'
         dokku-host: 'medusa.datasektionen.se'
         app-name: 'dsekt.se'
+        git-push-flags: '--force'
