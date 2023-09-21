@@ -20,7 +20,7 @@ export const checkToken = async (req: Request, res: Response) => {
 export const createLink = async (req: Request, res: Response) => {
     const { url, mandate, expires } = req.body;
     // force lowercase on short name
-    const desired = req.body.desired.toLowerCase();
+    const desired = req.body.desired?.toLowerCase();
 
     // Check blacklist
     const host = new URL(url).host;
