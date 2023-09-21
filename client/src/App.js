@@ -127,7 +127,7 @@ const App = () => {
                         exact
                         path="/login"
                         render={(match) => {
-                            window.location = `https://login.datasektionen.se/login?callback=${encodeURIComponent(
+                            window.location = `${Configuration.loginApiUrl}/login?callback=${encodeURIComponent(
                                 window.location.origin
                             )}/token/`;
                             return <div></div>;
