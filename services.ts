@@ -18,7 +18,9 @@ export const checkToken = async (req: Request, res: Response) => {
 };
 
 export const createLink = async (req: Request, res: Response) => {
-    const { url, desired, mandate, expires } = req.body;
+    const { url, mandate, expires } = req.body;
+    // force lowercase on short name
+    const desired = req.body.desired?.toLowerCase();
 
     // Check blacklist
     const host = new URL(url).host;
@@ -120,7 +122,7 @@ export const getAllLinks = async (req: Request, res: Response) => {
 export const getLink = async (req: Request, res: Response) => {
     const { code } = req.params;
     const item = await Item.findOneAndUpdate(
-        { short: code },
+        { short: code.toLowerCase() },
         { $inc: { clicks: 1 } }
     );
     if (!item) return res.sendStatus(404);

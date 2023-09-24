@@ -48,6 +48,7 @@ See [configuration.ts](configuration.ts)
 | Name                      | Default                                   | Description                                               |
 | ------------------------- | ----------------------------------------- | --------------------------------------------------------- |
 | REACT_APP_API_ENDPOINT    | `http://localhost:8080` in development    | Used to fetch the API                                     |
+| REACT_APP_LOGIN_API_URL   | `https://login.datasektionen.se`          | Used to fetch the login token                             |
 
 # How to run
 ## Development
