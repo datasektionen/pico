@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, {AxiosError} from "axios";
 import { validationResult } from "express-validator";
 import httpContext from "express-http-context";
 import { configuration } from "./configuration";
@@ -36,20 +36,30 @@ export const authorizePls = async (
         return;
     }
 
+    var response;
     try {
-        const response = await axios.get(
+        response = await axios.get(
             `${configuration.LOGIN_API_URL}/verify/${token}.json?api_key=${configuration.LOGIN_API_KEY}`
         );
         if (response.status !== 200) {
             res.sendStatus(401);
             return;
         }
+    } catch(err) {
+        const response = (err as AxiosError).response!;
+        res.status(response.status).send(response.data);
+        return;
+    }
 
-        const user = response.data;
+    const user = response.data;
 
-        const plsResponse = await axios.get(
-            `${configuration.PLS_API_URL}/user/${user.user}/pico`
-        );
+    const plsResponse = await axios.get(
+        `${configuration.PLS_API_URL}/user/${user.user}/pico`
+    );
+
+    var mandates: {title: string, identifier: string}[] = [];
+    var groups: {name: string, identifier: string}[] = [];
+    try {
         // Fetch user's mandates from dfunkt
         // TODO: Cache this
         const result: CurrentMandate[] = (
@@ -57,13 +67,13 @@ export const authorizePls = async (
                 `https://dfunkt.datasektionen.se/api/user/kthid/${user.user}/current`
             )
         ).data.mandates;
-        const mandates = result
+        mandates = result
             // Only save title and identifier
             .map((m) => ({
                 title: m.Role.title,
                 identifier: m.Role.identifier,
             }));
-        const groups = result
+        groups = result
             .map((m) => ({
                 name: m.Role.Group.name,
                 identifier: m.Role.Group.identifier,
@@ -72,19 +82,22 @@ export const authorizePls = async (
                 (v, i, self) =>
                     i === self.findIndex((t) => t.identifier === v.identifier)
             );
-
-        httpContext.set("user", {
-            ...user,
-            pls: plsResponse.data,
-            mandates,
-            groups,
-        });
-
-        next();
     } catch (err) {
-        res.sendStatus(500);
-        return;
+        const response = (err as AxiosError).response!;
+        if (response.status != 404) {
+            res.status(response.status).send(response.data);
+            return;
+        }
     }
+
+    httpContext.set("user", {
+        ...user,
+        pls: plsResponse.data,
+        mandates,
+        groups,
+    });
+
+    next();
 };
 
 export const desiredAuth = (
