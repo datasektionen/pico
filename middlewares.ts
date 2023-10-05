@@ -101,7 +101,9 @@ export const authorizePls = async (
     }
 
     httpContext.set(
-        "user", { ...user, pls: plsResponse.data, mandates, groups }
+        "user", {
+            ...user, pls: plsResponse.data, mandates, groups,
+        }
     );
 
     next();
