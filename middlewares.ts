@@ -1,4 +1,4 @@
-import axios, {AxiosError} from "axios";
+import axios, { AxiosResponse, AxiosError } from "axios";
 import { validationResult } from "express-validator";
 import httpContext from "express-http-context";
 import { configuration } from "./configuration";
@@ -23,30 +23,33 @@ export const authorizePls = async (
     res: Response,
     next: NextFunction
 ) => {
-    const authorizationHeader = req.headers.authorization;
-    let token;
+    const authorizationHeader: string | undefined = req.headers.authorization;
+    let token: string = "";
+    let response: AxiosResponse | undefined = undefined;
+
     if (authorizationHeader) {
         token = authorizationHeader.split(" ")[1];
     } else if (req.query.token) {
-        token = req.query.token;
+        token = req.query.token as string;
     }
 
-    if (!token || token.length === 0) {
+    if (token.length === 0) {
         res.sendStatus(401);
         return;
     }
 
-    var response;
     try {
-        response = await axios.get(
-            `${configuration.LOGIN_API_URL}/verify/${token}.json?api_key=${configuration.LOGIN_API_KEY}`
-        );
+        const url = `${configuration.LOGIN_API_URL}/verify/${token}.json?api_key=${configuration.LOGIN_API_KEY}`;
+        response = (await axios.get(url))!; // notice the final "!"
         if (response.status !== 200) {
             res.sendStatus(401);
             return;
         }
-    } catch(err) {
-        const response = (err as AxiosError).response!;
+    } catch (err) {
+        response = (err as AxiosError).response;
+        if (response === undefined) {
+            return;
+        }
         res.status(response.status).send(response.data);
         return;
     }
@@ -57,8 +60,8 @@ export const authorizePls = async (
         `${configuration.PLS_API_URL}/user/${user.user}/pico`
     );
 
-    var mandates: {title: string, identifier: string}[] = [];
-    var groups: {name: string, identifier: string}[] = [];
+    let mandates: {title: string; identifier: string}[] = [];
+    let groups: {name: string; identifier: string}[] = [];
     try {
         // Fetch user's mandates from dfunkt
         // TODO: Cache this
@@ -83,7 +86,10 @@ export const authorizePls = async (
                     i === self.findIndex((t) => t.identifier === v.identifier)
             );
     } catch (err) {
-        const response = (err as AxiosError).response!;
+        response = (err as AxiosError).response;
+        if (response === undefined) {
+            return;
+        }
         if (response.status != 404) {
             res.status(response.status).send(response.data);
             return;
