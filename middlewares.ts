@@ -24,8 +24,9 @@ export const authorizePls = async (
     next: NextFunction
 ) => {
     const authorizationHeader: string | undefined = req.headers.authorization;
-    let token: string = "";
+    let token = "";
     let response: AxiosResponse | undefined = undefined;
+    let url = "";
 
     if (authorizationHeader) {
         token = authorizationHeader.split(" ")[1];
@@ -39,15 +40,20 @@ export const authorizePls = async (
     }
 
     try {
-        const url = `${configuration.LOGIN_API_URL}/verify/${token}.json?api_key=${configuration.LOGIN_API_KEY}`;
-        response = (await axios.get(url))!; // notice the final "!"
+        url = `${configuration.LOGIN_API_URL}/verify/${token}.json?api_key=${configuration.LOGIN_API_KEY}`;
+        response = await axios.get(url);
+        if (response === undefined) {
+            res.status(500).send("Undefined response");
+            return;
+        }
         if (response.status !== 200) {
-            res.sendStatus(401);
+            res.status(response.status).send(response.data);
             return;
         }
     } catch (err) {
         response = (err as AxiosError).response;
         if (response === undefined) {
+            res.status(500).send("Undefined response");
             return;
         }
         res.status(response.status).send(response.data);
@@ -60,16 +66,13 @@ export const authorizePls = async (
         `${configuration.PLS_API_URL}/user/${user.user}/pico`
     );
 
-    let mandates: {title: string; identifier: string}[] = [];
-    let groups: {name: string; identifier: string}[] = [];
+    let mandates: { title: string; identifier: string }[] = [];
+    let groups: { name: string; identifier: string }[] = [];
     try {
         // Fetch user's mandates from dfunkt
         // TODO: Cache this
-        const result: CurrentMandate[] = (
-            await axios.get(
-                `https://dfunkt.datasektionen.se/api/user/kthid/${user.user}/current`
-            )
-        ).data.mandates;
+        url = `https://dfunkt.datasektionen.se/api/user/kthid/${user.user}/current`;
+        const result: CurrentMandate[] = (await axios.get(url)).data.mandates;
         mandates = result
             // Only save title and identifier
             .map((m) => ({
@@ -88,6 +91,7 @@ export const authorizePls = async (
     } catch (err) {
         response = (err as AxiosError).response;
         if (response === undefined) {
+            res.status(500).send("Undefined response");
             return;
         }
         if (response.status != 404) {
@@ -96,12 +100,9 @@ export const authorizePls = async (
         }
     }
 
-    httpContext.set("user", {
-        ...user,
-        pls: plsResponse.data,
-        mandates,
-        groups,
-    });
+    httpContext.set(
+        "user", { ...user, pls: plsResponse.data, mandates, groups }
+    );
 
     next();
 };
