@@ -4,7 +4,7 @@ import httpContext from "express-http-context";
 import { configuration } from "./configuration";
 import { NextFunction, Request, Response } from "express";
 import { canCreateCustomLinks, getContext, hasMandate, isAdmin } from "./utils";
-import { CurrentMandate } from "./types";
+import { CurrentMandate, User } from "./types";
 
 export const validationCheck = (
     req: Request,
@@ -24,9 +24,7 @@ export const authorizePls = async (
     next: NextFunction
 ) => {
     const authorizationHeader: string | undefined = req.headers.authorization;
-    let token = "";
-    let response: AxiosResponse | undefined = undefined;
-    let url = "";
+    let token: string | undefined;
 
     if (authorizationHeader) {
         token = authorizationHeader.split(" ")[1];
@@ -34,45 +32,53 @@ export const authorizePls = async (
         token = req.query.token as string;
     }
 
-    if (token.length === 0) {
+    if (!token || token.length === 0) {
         res.sendStatus(401);
         return;
     }
 
+    const loginUrl = `${configuration.LOGIN_API_URL}/verify/${token}.json?api_key=${configuration.LOGIN_API_KEY}`;
+    let loginResponse: AxiosResponse;
     try {
-        url = `${configuration.LOGIN_API_URL}/verify/${token}.json?api_key=${configuration.LOGIN_API_KEY}`;
-        response = await axios.get(url);
-        if (response === undefined) {
-            res.status(500).send("Undefined response");
-            return;
-        }
-        if (response.status !== 200) {
-            res.status(response.status).send(response.data);
-            return;
-        }
+        loginResponse = await axios.get(loginUrl);
     } catch (err) {
-        response = (err as AxiosError).response;
-        if (response === undefined) {
-            res.status(500).send("Undefined response");
-            return;
+        const loginError = err as AxiosError;
+        if (loginError.response) {
+            const { status, data } = loginError.response;
+            res.status(status).send(data);
+        } else {
+            res.status(502).send(
+                "Bad Gateway - No response from the login API."
+            );
         }
-        res.status(response.status).send(response.data);
         return;
     }
 
-    const user = response.data;
+    const user: User = loginResponse.data;
 
-    const plsResponse = await axios.get(
-        `${configuration.PLS_API_URL}/user/${user.user}/pico`
-    );
+    const plsUrl = `${configuration.PLS_API_URL}/user/${user.user}/pico`;
+    let plsResponse: AxiosResponse;
+    try {
+        plsResponse = await axios.get(plsUrl);
+    } catch (err) {
+        const plsError = err as AxiosError;
+        if (plsError.response) {
+            const { status, data } = plsError.response;
+            res.status(status).send(data);
+        } else {
+            res.status(502).send("Bad Gateway - No response from the PLS API.");
+        }
+        return;
+    }
 
     let mandates: { title: string; identifier: string }[] = [];
     let groups: { name: string; identifier: string }[] = [];
     try {
         // Fetch user's mandates from dfunkt
         // TODO: Cache this
-        url = `https://dfunkt.datasektionen.se/api/user/kthid/${user.user}/current`;
-        const result: CurrentMandate[] = (await axios.get(url)).data.mandates;
+        const dfunktUrl = `https://dfunkt.datasektionen.se/api/user/kthid/${user.user}/current`;
+        const dfunktResponse = await axios.get(dfunktUrl);
+        const result: CurrentMandate[] = dfunktResponse.data.mandates;
         mandates = result
             // Only save title and identifier
             .map((m) => ({
@@ -89,13 +95,19 @@ export const authorizePls = async (
                     i === self.findIndex((t) => t.identifier === v.identifier)
             );
     } catch (err) {
-        response = (err as AxiosError).response;
-        if (response === undefined) {
-            res.status(500).send("Undefined response");
-            return;
-        }
-        if (response.status != 404) {
-            res.status(response.status).send(response.data);
+        const dfunktError = err as AxiosError;
+        if (dfunktError.response) {
+            const { status, data } = dfunktError.response;
+            // If status is 404, this user is simply not a dFunkt and the page
+            // should proceed normally. Otherwise, return an error.
+            if (status != 404) {
+                res.status(status).send(data);
+                return;
+            }
+        } else {
+            res.status(502).send(
+                "Bad Gateway - No response from the dFunkt API."
+            );
             return;
         }
     }
