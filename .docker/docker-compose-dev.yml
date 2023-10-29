@@ -25,6 +25,10 @@ services:
     image: ghcr.io/datasektionen/nyckeln-under-dorrmattan
     ports:
       - 7002:7002
+    environment:
+      # Since we're using the real pls, it's nice to use some user with a lot of priveleges. Putting
+      # mine here since I'm d-sys at the time of writing.
+      KTH_ID: mathm
   mongo:
     image: mongo
     restart: always
