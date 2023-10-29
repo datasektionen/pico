@@ -54,6 +54,19 @@ These must be set when building, not when running the application. To do this wh
 
 # How to run
 ## Development
+
+### The easy way
+
+```sh
+docker compose -f .docker/docker-compose-dev.yml up
+```
+
+And go to `http://localhost:3000`.
+
+And that's it! It's not very nice, but it works. (Well, it works on my machine at least).
+
+### The better way
+
 Make sure you use the node version specified in `.nvmrc`.
 
 1. Set up environment variables
