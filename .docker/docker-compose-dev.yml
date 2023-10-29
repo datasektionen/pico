@@ -6,19 +6,27 @@ volumes:
     driver: local
 
 services:
-  app:
+  backend:
     image: node:16-alpine3.18
     ports:
       - 8000:8000
     volumes:
       - ../:/app
-    command: su node -c "cd /app && npm i && npm run build:frontend && npm run dev"
+    command: su node -c "cd /app && npm i --ignore-scripts && npm run dev"
     environment:
       LOGIN_API_URL: http://login:7002
       LOGIN_API_KEY: not-used
       PLS_API_URL: https://pls.datasektionen.se/api
       MONGO_URL: mongodb://mongo:27017/pico
       NODE_ENV: development
+  frontend:
+    image: node:16-alpine3.18
+    ports:
+      - 3000:3000
+    volumes:
+      - ../:/app
+    command: su node -c "cd /app/client && npm i && npm start"
+    environment:
       REACT_APP_LOGIN_API_URL: http://localhost:7002
       REACT_APP_API_URL: http://localhost:8000
   login:
