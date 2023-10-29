@@ -15,7 +15,7 @@
         "build:frontend": "cd client && npm run build",
         "build": "npm run build:backend && npm run build:frontend && mv client/ dist/",
         "dev": "ts-node-dev --respawn app.ts",
-        "dev:db": "docker-compose -f .docker/docker-compose-dev.yml up",
+        "dev:db": "docker-compose -f .docker/docker-compose-dev.yml up mongo mongo-express",
         "lint": "eslint . --ext .js,.ts",
         "lint:fix": "eslint . --ext .js,.ts --fix"
     },
