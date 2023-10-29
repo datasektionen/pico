@@ -1,5 +1,5 @@
 {
-    "name": "link-shortener",
+    "name": "pico",
     "version": "1.0.0",
     "author": {
         "name": "Axel Elmarsson",
@@ -30,8 +30,7 @@
         "express-validator": "^6.12.2",
         "mongodb": "^4.1.2",
         "mongoose": "^6.0.8",
-        "morgan": "^1.10.0",
-        "react-qrcode-logo": "^2.9.0"
+        "morgan": "^1.10.0"
     },
     "devDependencies": {
         "@types/cors": "^2.8.12",
