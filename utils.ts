@@ -37,7 +37,10 @@ export const hasMandate = (user: User, mandate: string) =>
 // If the user is admin, return true
 // Else return false
 // TODO: Test
-export const getHasDeleteAccess = (user: User, item: any): boolean => {
+export const getHasDeleteAccess = (
+    user: User,
+    item: { mandate?: string; user?: string }
+): boolean => {
     if (isAdmin(user)) return true;
 
     if (item.mandate) {
