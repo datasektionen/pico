@@ -96,6 +96,12 @@ export const authorizePls = async (
             );
     } catch (err) {
         const dfunktError = err as AxiosError;
+        if (!dfunktError.isAxiosError) {
+            res.status(500).send(
+                "Internal Server Error - " + dfunktError.message
+            );
+            return;
+        }
         if (dfunktError.response) {
             const { status, data } = dfunktError.response;
             // If status is 404, this user is simply not a dFunkt and the page
