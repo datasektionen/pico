@@ -6,15 +6,41 @@ volumes:
     driver: local
 
 services:
+  backend:
+    image: node:16-alpine3.18
+    ports:
+      - 8000:8000
+    volumes:
+      - ../:/app
+    command: su node -c "cd /app && npm i --ignore-scripts && npm run dev"
+    environment:
+      LOGIN_API_URL: http://login:7002
+      LOGIN_API_KEY: not-used
+      PLS_API_URL: https://pls.datasektionen.se/api
+      MONGO_URL: mongodb://mongo:27017/pico
+      NODE_ENV: development
+  frontend:
+    image: node:16-alpine3.18
+    ports:
+      - 3000:3000
+    volumes:
+      - ../:/app
+    command: su node -c "cd /app/client && npm i && npm start"
+    environment:
+      REACT_APP_LOGIN_API_URL: http://localhost:7002
+      REACT_APP_API_URL: http://localhost:8000
+  login:
+    image: ghcr.io/datasektionen/nyckeln-under-dorrmattan
+    ports:
+      - 7002:7002
+    environment:
+      # Since we're using the real pls, it's nice to use some user with a lot of priveleges. Putting
+      # mine here since I'm d-sys at the time of writing.
+      KTH_ID: mathm
   mongo:
     image: mongo
     restart: always
     container_name: pico-mongodb
-    ports:
-        - 27017:27017
-    # environment:
-    #     MONGO_INITDB_ROOT_USERNAME: root
-    #     MONGO_INITDB_ROOT_PASSWORD: root
     volumes:
       - db-data:/data/db
   mongo-express:
@@ -22,10 +48,8 @@ services:
     restart: always
     container_name: pico-mongo-express
     ports:
-        - 8081:8081
+      - 8081:8081
     environment:
-        # ME_CONFIG_MONGODB_ADMINUSERNAME: root
-        # ME_CONFIG_MONGODB_ADMINPASSWORD: root
         ME_CONFIG_MONGODB_URL: mongodb://mongo:27017
     depends_on:
-        - mongo
+      - mongo

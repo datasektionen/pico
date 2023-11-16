@@ -3,7 +3,7 @@ Trött på långa länkar? Då har vi systemet just för dig. Stoppa in din lån
 
 Systemet är tänkt att endast användas i sektionsrelaterade ändamål för att exempelvis förkorta länkar till formulär och annat.
 
-När man förkortar en länk kollar systemet om länken finns i svartlistan som innehåller länkar till porr, spam, malware etc. [Denna](https://github.com/blocklistproject/Lists/blob/master/everything.txt) lista (90 MB) används.
+När man förkortar en länk kollar systemet om länken finns i svartlistan som innehåller länkar till porr, spam, malware etc. [Denna](https://github.com/blocklistproject/Lists/blob/master/everything.txt) lista (90 MB) används med [några ändringar](https://github.com/datasektionen/pico/commits/master/resources).
 
 # API documentation
 Available [here](https://duckumentation.datasektionen.se/pico)
@@ -33,25 +33,40 @@ To get a login API-key contact <a href="mailto:d-sys@datasektionen.se">d-sys</a>
 ## Server
 See [configuration.ts](configuration.ts)
 
-| Name                      | Default                                   | Description                                               |
-| ------------------------- | ----------------------------------------- | --------------------------------------------------------- |
-| MONGO_URL                 | -                                         | Example: `mongodb://localhost:27017/pico`, follow the schema: `mongodb://HOST:PORT/DB_NAME`                                                          |
-| PORT                      | 8000                                      | Server port                                               |
-| NODE_ENV                  | development                               |                                                           |
-| LOGIN_API_URL             | https://login.datasektionen.se            | URL to login                                              |
-| LOGIN_API_KEY             | -                                         | Login key                                                 |
-| PLS_API_URL               | https://pls.datasektionen.se/api          | URL to pls api                                            |
-| SHORT_URL_LENGTH          | 4                                         |                                                           |
+| Name                      | Default                                   | Description                                                                                 |
+| ------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------- |
+| MONGO_URL                 | -                                         | Example: `mongodb://localhost:27017/pico`, follow the schema: `mongodb://HOST:PORT/DB_NAME` |
+| PORT                      | 8000                                      | Server port                                                                                 |
+| NODE_ENV                  | development                               |                                                                                             |
+| LOGIN_API_URL             | https://login.datasektionen.se            | URL to login                                                                                |
+| LOGIN_API_KEY             | -                                         | Login key                                                                                   |
+| PLS_API_URL               | https://pls.datasektionen.se/api          | URL to pls api                                                                              |
+| SHORT_URL_LENGTH          | 4                                         |                                                                                             |
 
 ## Client
 
+These must be set when building, not when running the application. To do this when building with docker, use `--build-arg KEY=VALUE` (or `--build-arg-file client/.env.local`, but only works with podman)
+
 | Name                      | Default                                   | Description                                               |
 | ------------------------- | ----------------------------------------- | --------------------------------------------------------- |
-| REACT_APP_API_ENDPOINT    | `http://localhost:8080` in development    | Used to fetch the API                                     |
+| REACT_APP_API_URL         | `http://localhost:8080` in development    | Used to fetch the API                                     |
 | REACT_APP_LOGIN_API_URL   | `https://login.datasektionen.se`          | Used to fetch the login token                             |
 
 # How to run
 ## Development
+
+### The easy way
+
+```sh
+docker compose -f .docker/docker-compose-dev.yml up
+```
+
+And go to `http://localhost:3000`.
+
+And that's it! It's not very nice, but it works. (Well, it works on my machine at least).
+
+### The better way
+
 Make sure you use the node version specified in `.nvmrc`.
 
 1. Set up environment variables

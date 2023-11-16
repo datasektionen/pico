@@ -18,7 +18,11 @@ export const checkToken = async (req: Request, res: Response) => {
 };
 
 export const createLink = async (req: Request, res: Response) => {
-    const { url, mandate, expires } = req.body;
+    const { url, mandate, expires } = req.body as {
+        url: string;
+        mandate?: string;
+        expires?: number;
+    };
     // force lowercase on short name
     const desired = req.body.desired?.toLowerCase();
 
@@ -41,7 +45,13 @@ export const createLink = async (req: Request, res: Response) => {
 
     const { user } = getContext();
 
-    const data: any = {
+    const data: {
+        expires: number | null;
+        user: string;
+        short?: string;
+        url?: string;
+        mandate?: string;
+    } = {
         url,
         user: user.user,
         expires: expires ?? null,
