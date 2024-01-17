@@ -57,13 +57,18 @@ These must be set when building, not when running the application. To do this wh
 
 ### The easy way
 
+Make sure you have either podman or docker with podman-compose or docker-compose
+isntalled. You need at least version 2.22 of docker-compose since that's when
+`watch` was added.
+
 ```sh
-docker compose -f .docker/docker-compose-dev.yml up
+docker compose -f .docker/docker-compose-dev.yml watch
 ```
 
-And go to `http://localhost:3000`.
-
-And that's it! It's not very nice, but it works. (Well, it works on my machine at least).
+And go to `http://localhost:3000`. And that's it! Updating files in the frontend
+should update the corresponding file in the container which should make it
+hot-reload. Updating files in the backend triggers it to rebuild since i
+couldn't get it to work better (but i should...).
 
 ### The better way
 
