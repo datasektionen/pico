@@ -58,7 +58,7 @@ These must be set when building, not when running the application. To do this wh
 ### The easy way
 
 Make sure you have either podman or docker with podman-compose or docker-compose
-isntalled. You need at least version 2.22 of docker-compose since that's when
+installed. You need at least version 2.22 of docker-compose since that's when
 `watch` was added.
 
 ```sh
