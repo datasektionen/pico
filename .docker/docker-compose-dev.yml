@@ -7,28 +7,37 @@ volumes:
 
 services:
   backend:
-    image: node:16-alpine3.18
+    build:
+      context: ..
+      dockerfile: .docker/backend.Dockerfile
     ports:
       - 8000:8000
-    volumes:
-      - ../:/app
-    command: su node -c "cd /app && npm i --ignore-scripts && npm run dev"
     environment:
       LOGIN_API_URL: http://login:7002
       LOGIN_API_KEY: not-used
       PLS_API_URL: https://pls.datasektionen.se/api
       MONGO_URL: mongodb://mongo:27017/pico
       NODE_ENV: development
+    develop:
+      watch:
+        - action: rebuild
+          path: ../
   frontend:
-    image: node:16-alpine3.18
+    build:
+      context: ../client
+      dockerfile: ../.docker/frontend.Dockerfile
     ports:
       - 3000:3000
-    volumes:
-      - ../:/app
-    command: su node -c "cd /app/client && npm i && npm start"
     environment:
       REACT_APP_LOGIN_API_URL: http://localhost:7002
       REACT_APP_API_URL: http://localhost:8000
+    develop:
+      watch:
+        - action: sync
+          path: ../client
+          target: /app
+        - action: rebuild
+          path: ../client/package.json
   login:
     image: ghcr.io/datasektionen/nyckeln-under-dorrmattan
     ports:
