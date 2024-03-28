@@ -28,7 +28,7 @@ Pls - to check admin priveleges of users
 
 # Environment variables
 
-To get a login API-key contact <a href="mailto:d-sys@datasektionen.se">d-sys</a>.
+All necessary variables should be set automatically when running with docker compose.
 
 ## Server
 See [configuration.ts](configuration.ts)
